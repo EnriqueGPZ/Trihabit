@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriHabit v8 - Configurable</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .glass { background: rgba(30, 41, 59, 0.9); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.1); border-radius: 12px; }
+        
+        /* Switch Toggles */
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+        
+        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 0; width: 0; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden" x-data="app()" x-init="initApp()" x-cloak>
+
+    <!-- Header -->
+    <header class="glass h-16 shrink-0 flex items-center justify-between px-6 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white"><i class="ph ph-sliders-horizontal"></i></div>
+            <h1 class="font-bold text-lg text-white">TriHabit <span class="text-xs font-normal text-slate-400">v8.0</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span x-show="savedMsg" class="text-xs text-green-400 font-bold animate-pulse">Guardado</span>
+            <button @click="showSettings = true" class="text-slate-400 hover:text-white transition hover:rotate-90 duration-300"><i class="ph ph-gear text-2xl"></i></button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        
+        <!-- IZQUIERDA: Calendario e Inputs -->
+        <section class="flex-1 lg:flex-[0.4] flex flex-col p-6 overflow-y-auto border-r border-slate-800 bg-slate-900/50">
+            
+            <!-- Navegación Mes -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl text-white font-light capitalize" x-text="monthName"></h2>
+                <div class="flex bg-slate-800 rounded-lg p-1">
+                    <button @click="changeMonth(-1)" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-caret-left"></i></button>
+                    <button @click="gotoToday()" class="px-3 text-xs font-bold text-slate-300 hover:text-white">HOY</button>
+                    <button @click="changeMonth(1)" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-caret-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Grid Calendario -->
+            <div class="grid grid-cols-7 gap-2 mb-2">
+                <template x-for="d in ['D','L','M','M','J','V','S']"><div class="text-center text-[10px] text-slate-500 font-bold" x-text="d"></div></template>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+                <template x-for="b in blanks"><div class="aspect-square"></div></template>
+                <template x-for="day in daysInMonth" :key="day">
+                    <div @click="selectDay(day)" 
+                         class="aspect-square rounded-lg border border-transparent cursor-pointer flex flex-col items-center justify-center relative hover:bg-slate-800 transition"
+                         :class="selectedDay === day ? 'bg-slate-700 ring-2 ring-indigo-500' : 'bg-slate-800/30'">
+                        <span class="text-sm" :class="isToday(day) ? 'text-indigo-400 font-bold' : 'text-slate-300'" x-text="day"></span>
+                        
+                        <!-- Puntos indicadores (Solo activos) -->
+                        <div class="flex gap-0.5 mt-1 h-1">
+                            <template x-for="(h, i) in habits">
+                                <div x-show="h.active" class="w-1.5 h-1.5 rounded-full" 
+                                     :style="getVal(day, i) > 0 ? `background: ${h.color}` : 'background: rgba(255,255,255,0.05)'"></div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Panel de Inputs -->
+            <div x-show="selectedDay" x-transition class="mt-6 glass-panel p-5 border-l-4" :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white">Día <span x-text="selectedDay"></span></h3>
+                    <button @click="selectedDay = null" class="lg:hidden"><i class="ph ph-x text-slate-400"></i></button>
+                </div>
+
+                <div class="space-y-5">
+                    <template x-for="(habit, idx) in habits" :key="idx">
+                        <div x-show="habit.active" class="transition-all duration-300">
+                            <div class="flex justify-between text-xs mb-1 text-slate-300">
+                                <span class="font-bold flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full" :style="`background: ${habit.color}`"></span>
+                                    <span x-text="habit.name"></span>
+                                </span>
+                                <span><span x-text="getVal(selectedDay, idx)"></span> / <span x-text="habit.max"></span> <span x-text="habit.unit"></span></span>
+                            </div>
+                            
+                            <div class="flex gap-3 items-center h-9">
+                                <div class="relative flex-1 h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                                    <div class="h-full transition-all duration-100" 
+                                         :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`"></div>
+                                    <input type="range" min="0" :max="habit.max" step="1" 
+                                           class="absolute w-full h-full opacity-0 z-10"
+                                           :value="getVal(selectedDay, idx)"
+                                           @input="updateVal(idx, $el.value)">
+                                </div>
+                                <input type="number" 
+                                       class="w-16 bg-slate-900 border border-slate-700 rounded text-center text-white font-bold text-sm py-1 focus:border-indigo-500 outline-none"
+                                       :value="getVal(selectedDay, idx)"
+                                       @input="updateVal(idx, $el.value)">
+                            </div>
+                        </div>
+                    </template>
+                    <!-- Mensaje si no hay activos -->
+                    <div x-show="!habits.some(h=>h.active)" class="text-center text-slate-500 text-sm py-4">
+                        No tienes retos activos. Actívalos en configuración.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DERECHA: Gráfica -->
+        <section class="flex-1 lg:flex-[0.6] flex flex-col p-6 overflow-hidden bg-slate-900 relative">
+            
+            <div class="flex justify-between items-end mb-4 shrink-0">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Progreso Mensual</h3>
+                    <p class="text-xs text-slate-500">Tendencia de retos activos</p>
+                </div>
+                <!-- Totales (Solo activos) -->
+                <div class="flex gap-4">
+                    <template x-for="(h, i) in habits">
+                        <div x-show="h.active" class="text-right">
+                            <div class="text-[10px] uppercase text-slate-500" x-text="h.unit"></div>
+                            <div class="text-lg font-bold leading-none" :style="`color:${h.color}`" x-text="calcTotal(i)"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 flex-1 relative w-full h-full min-h-0">
+                <canvas id="progressionChart"></canvas>
+            </div>
+            
+        </section>
+    </main>
+
+    <!-- Modal Config -->
+    <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center backdrop-blur-sm px-4" style="display:none">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl w-full max-w-lg shadow-2xl" @click.away="showSettings = false">
+            <h2 class="text-xl font-bold text-white mb-6">Configurar Retos</h2>
+            
+            <div class="space-y-4 mb-8">
+                <template x-for="(h, i) in tempHabits" :key="i">
+                    <div class="flex gap-3 bg-slate-800/60 p-3 rounded-xl items-center border border-slate-700 transition-colors"
+                         :class="!h.active ? 'opacity-50' : ''">
+                        
+                        <!-- Toggle Switch -->
+                        <div class="flex items-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="h.active" class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
+                            </label>
+                        </div>
+
+                        <input type="color" x-model="h.color" class="w-8 h-8 bg-transparent border-none cursor-pointer rounded-full overflow-hidden shrink-0">
+                        
+                        <div class="flex-1">
+                            <label class="text-[9px] text-slate-500 uppercase font-bold px-1">Nombre</label>
+                            <input type="text" x-model="h.name" class="w-full bg-transparent text-white border-b border-slate-600 focus:border-white outline-none text-sm py-1">
+                        </div>
+                        
+                        <div class="w-16">
+                            <label class="text-[9px] text-slate-500 uppercase font-bold px-1">Meta</label>
+                            <input type="number" x-model="h.max" class="w-full bg-transparent text-white text-right border-b border-slate-600 focus:border-white outline-none text-sm py-1">
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="flex justify-between items-center border-t border-slate-800 pt-4">
+                <button @click="resetAll()" class="text-red-500 text-xs hover:text-red-300">Borrar Todo</button>
+                <div class="flex gap-3">
+                    <button @click="showSettings = false" class="text-slate-400 text-sm hover:text-white">Cancelar</button>
+                    <button @click="saveSettings()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-indigo-500 shadow-lg shadow-indigo-500/20">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                habits: [],
+                logs: {},
+                tempHabits: [],
+                currentDate: new Date(),
+                selectedDay: null,
+                showSettings: false,
+                savedMsg: false,
+                chart: null,
+
+                // Getters
+                get daysInMonth() { return new Date(this.year, this.month + 1, 0).getDate(); },
+                get blanks() { return new Date(this.year, this.month, 1).getDay(); },
+                get month() { return this.currentDate.getMonth(); },
+                get year() { return this.currentDate.getFullYear(); },
+                get monthName() { return this.currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' }); },
+
+                initApp() {
+                    const cfg = localStorage.getItem('trihabit_config_v8');
+                    const dat = localStorage.getItem('trihabit_logs_v8');
+
+                    if (cfg) {
+                        this.habits = JSON.parse(cfg);
+                    } else {
+                        // Default con 'active' property
+                        this.habits = [
+                            { id: 0, name: 'Flexiones', max: 50, unit: 'reps', color: '#8b5cf6', active: true },
+                            { id: 1, name: 'Lectura', max: 30, unit: 'min', color: '#06b6d4', active: true },
+                            { id: 2, name: 'Agua', max: 8, unit: 'lts', color: '#10b981', active: true }
+                        ];
+                    }
+
+                    // Migración simple para versiones anteriores sin 'active'
+                    this.habits = this.habits.map(h => ({ ...h, active: h.active !== undefined ? h.active : true }));
+
+                    if (dat) this.logs = JSON.parse(dat);
+                    this.tempHabits = JSON.parse(JSON.stringify(this.habits));
+                    
+                    this.gotoToday();
+
+                    this.$nextTick(() => {
+                        setTimeout(() => this.initChart(), 200);
+                    });
+
+                    this.$watch('logs', () => { this.saveData(); this.updateChartData(); });
+                },
+
+                saveData() {
+                    localStorage.setItem('trihabit_config_v8', JSON.stringify(this.habits));
+                    localStorage.setItem('trihabit_logs_v8', JSON.stringify(this.logs));
+                    this.savedMsg = true;
+                    setTimeout(() => this.savedMsg = false, 1000);
+                },
+
+                getKey(day) {
+                    return `${this.year}-${(this.month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                },
+                gotoToday() { 
+                    this.currentDate = new Date(); 
+                    this.selectedDay = this.currentDate.getDate();
+                },
+                changeMonth(val) { 
+                    this.currentDate = new Date(this.year, this.month + val, 1);
+                    this.selectedDay = null;
+                    this.$nextTick(() => this.updateChartData());
+                },
+                selectDay(day) { this.selectedDay = day; },
+                isToday(day) {
+                    const t = new Date();
+                    return day === t.getDate() && this.month === t.getMonth() && this.year === t.getFullYear();
+                },
+
+                getVal(day, idx) {
+                    const key = this.getKey(day);
+                    return this.logs[key] ? (this.logs[key][idx] || 0) : 0;
+                },
+                updateVal(idx, val) {
+                    if (!this.selectedDay) return;
+                    const key = this.getKey(this.selectedDay);
+                    if (!this.logs[key]) this.logs[key] = [0, 0, 0];
+                    this.logs[key][idx] = val === '' ? 0 : parseFloat(val);
+                    this.logs = { ...this.logs };
+                },
+                calcTotal(idx) {
+                    const prefix = `${this.year}-${(this.month+1).toString().padStart(2,'0')}`;
+                    return Object.keys(this.logs)
+                        .filter(k => k.startsWith(prefix))
+                        .reduce((acc, k) => acc + (this.logs[k][idx] || 0), 0);
+                },
+
+                saveSettings() {
+                    this.habits = JSON.parse(JSON.stringify(this.tempHabits));
+                    this.saveData();
+                    this.showSettings = false;
+                    // Re-inicializar gráfica para quitar/poner datasets
+                    this.initChart();
+                },
+                resetAll() {
+                    if(confirm("¿Reiniciar de fábrica?")) { localStorage.clear(); location.reload(); }
+                },
+
+                initChart() {
+                    const ctx = document.getElementById('progressionChart');
+                    if(!ctx) return;
+                    if(this.chart) this.chart.destroy();
+
+                    Chart.defaults.color = '#64748b';
+                    Chart.defaults.font.family = 'system-ui';
+
+                    this.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: [], datasets: [] },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: true, position: 'top', align: 'end', labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 6 } },
+                                tooltip: { 
+                                    backgroundColor: 'rgba(15, 23, 42, 0.9)', 
+                                    titleColor: '#fff', 
+                                    bodyColor: '#cbd5e1', 
+                                    borderColor: 'rgba(255,255,255,0.1)', 
+                                    borderWidth: 1 
+                                }
+                            },
+                            scales: {
+                                x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#64748b' } },
+                                y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false }, beginAtZero: true }
+                            },
+                            elements: { line: { tension: 0.3, borderWidth: 3 }, point: { radius: 3, hitRadius: 20 } }
+                        }
+                    });
+
+                    this.updateChartData();
+                },
+
+                updateChartData() {
+                    if (!this.chart) return;
+                    
+                    const days = Array.from({length: this.daysInMonth}, (_, i) => i + 1);
+                    this.chart.data.labels = days;
+
+                    // FILTRAR SOLO HÁBITOS ACTIVOS
+                    const activeHabits = this.habits.map((h, originalIndex) => ({...h, originalIndex})).filter(h => h.active);
+
+                    this.chart.data.datasets = activeHabits.map(h => ({
+                        label: h.name,
+                        // Importante: Usar el índice original para sacar el dato del array de logs
+                        data: days.map(d => this.logs[this.getKey(d)]?.[h.originalIndex] || 0),
+                        borderColor: h.color,
+                        backgroundColor: h.color,
+                    }));
+
+                    this.chart.update();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
