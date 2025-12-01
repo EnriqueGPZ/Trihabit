@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHabit v21.6 - Polished Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TriHabit v22 - Mobile UX Ultimate</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -19,18 +19,21 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        slate: { 850: '#151e32', 900: '#0f172a' }
+                        slate: { 850: '#151e32', 900: '#0f172a', 950: '#020617' }
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'spin-fast': 'spin 0.5s linear',
-                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' },
                         }
+                    },
+                    screens: {
+                        'xs': '375px',
                     }
                 }
             }
@@ -38,637 +41,381 @@
     </script>
 
     <style>
-        body { background-color: #020617; color: #e2e8f0; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
+        body { background-color: #020617; color: #e2e8f0; -webkit-tap-highlight-color: transparent; }
         
-        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; margin-top: -6px; box-shadow: 0 0 10px rgba(255,255,255,0.5); transition: transform 0.1s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 2px; }
+        /* Glassmorphism optimized */
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); }
+        
+        /* Mobile specific inputs */
+        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; height: 24px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #fff; margin-top: -10px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.3); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 99px; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
         
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         [x-cloak] { display: none !important; }
 
-        /* Estilos Heatmap */
-        .heatmap-grid { display: grid; grid-template-rows: repeat(7, 10px); grid-auto-flow: column; gap: 3px; }
-        .heatmap-labels { display: grid; grid-template-rows: repeat(7, 10px); gap: 3px; }
-        .heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background-color: rgba(255,255,255,0.05); }
-        .heatmap-cell:hover { transform: scale(1.5); z-index: 10; border: 1px solid white; }
+        /* Bottom Sheet for Mobile */
+        .bottom-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: #0f172a; 
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            z-index: 50; max-height: 85vh; overflow-y: auto;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
 
-        /* Animaciones */
-        .chart-shine-container { position: relative; overflow: hidden; }
-        .chart-shine-container::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%);
-            transform: skewX(-20deg); animation: shine-scan 6s infinite ease-in-out; pointer-events: none; z-index: 10;
+        /* Nav Bottom Mobile */
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+            background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-around; items-align: center;
+            z-index: 40; padding-bottom: env(safe-area-inset-bottom);
         }
-        @keyframes shine-scan { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-        
-        .drag-ghost { opacity: 0.5; background: #1e293b; }
-        .drag-chosen { box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #64748b; font-size: 10px; font-weight: 600; transition: all 0.2s; }
+        .nav-item.active { color: #818cf8; }
+        .nav-item.active i { transform: translateY(-2px); color: #a5b4fc; }
+        .nav-item i { font-size: 24px; transition: transform 0.2s; }
 
-        /* Estilos Guia & Estrategias */
-        .guide-card { transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .guide-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3); border-color: rgba(99, 102, 241, 0.3); }
-        .guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
-        
-        /* CORRECCIÓN: Usando CSS estándar en lugar de @apply para asegurar el posicionamiento correcto */
-        .tip-bullet { 
-            position: relative; 
-            padding-left: 1.5rem; /* pl-6 */
-            margin-left: 0.5rem; /* ml-2 */
-            color: #cbd5e1; /* text-slate-300 */
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.625; /* leading-relaxed */
-        }
-        .tip-bullet::before { 
-            content: '•'; 
-            position: absolute; 
-            left: 0; 
-            color: var(--card-color, #6366f1); 
-            font-weight: bold; 
-            font-size: 1.2em; 
-            top: -1px; 
-        }
-        
-        .manual-step { position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .manual-step:last-child { margin-bottom: 0; }
-        .manual-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #6366f1; }
+        /* Cards & Guide */
+        .guide-card { position: relative; overflow: hidden; }
+        .tip-bullet { position: relative; padding-left: 1.5rem; margin-left: 0.5rem; color: #cbd5e1; font-size: 0.875rem; line-height: 1.625; }
+        .tip-bullet::before { content: '•'; position: absolute; left: 0; color: var(--card-color, #6366f1); font-weight: bold; font-size: 1.5em; top: -5px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white" x-data="app()" x-init="initApp()" x-cloak>
+<body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white pb-[70px] lg:pb-0" x-data="app()" x-init="initApp()" x-cloak>
 
-    <header class="glass h-16 shrink-0 flex items-center justify-between px-6 z-30 sticky top-0">
+    <!-- HEADER: Desktop & Mobile -->
+    <header class="glass h-14 lg:h-16 shrink-0 flex items-center justify-between px-4 lg:px-6 z-30 sticky top-0">
         <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                <i class="ph-bold ph-chart-polar"></i>
+            <div class="w-8 h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                <i class="ph-bold ph-chart-polar text-lg"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v21.6</span></h1>
+                <h1 class="font-bold text-base lg:text-lg text-white leading-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v22</span></h1>
             </div>
         </div>
-        <div class="flex items-center gap-4">
-            <div x-show="savedMsg" x-transition.opacity.duration.500ms class="flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-900/30 px-3 py-1 rounded-full border border-emerald-500/20">
-                <i class="ph-bold ph-check"></i> Guardado
+        <div class="flex items-center gap-3">
+            <div x-show="savedMsg" x-transition.opacity class="flex items-center gap-1 text-[10px] lg:text-xs text-emerald-400 font-medium bg-emerald-900/30 px-2 py-1 rounded-full border border-emerald-500/20">
+                <i class="ph-bold ph-check"></i>
             </div>
-            <button @click="openSettings()" aria-label="Abrir configuración" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
-                <i class="ph ph-gear text-xl"></i>
+            <button @click="openSettings()" class="w-8 h-8 rounded-full bg-slate-800/50 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
+                <i class="ph ph-gear text-lg"></i>
             </button>
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col lg:flex-row relative z-10 overflow-hidden h-[calc(100vh-64px)]">
+    <main class="flex-1 flex flex-col lg:flex-row relative z-10 h-full">
         
-        <!-- SECCIÓN IZQUIERDA: CALENDARIO -->
-        <section class="flex-1 lg:flex-[0.4] flex flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 overflow-y-auto scrollbar-hide">
+        <!-- ==========================================
+             SECCIÓN 1: CALENDARIO (TRACKER)
+             Visible si tab = 'tracker' (móvil) o siempre (desktop)
+        ========================================== -->
+        <section x-show="isMobile ? mobileTab === 'tracker' : true" 
+                 class="flex-1 lg:flex-[0.4] flex flex-col p-4 lg:p-6 border-r border-slate-800/50 lg:bg-slate-900/30 overflow-y-auto scrollbar-hide">
             
-            <div class="flex justify-between items-end mb-8 px-1">
+            <!-- Controles Mes -->
+            <div class="flex justify-between items-end mb-6 px-1">
                 <div>
-                    <h2 class="text-3xl text-white font-bold capitalize tracking-tight" x-text="monthName"></h2>
-                    <p class="text-slate-500 text-sm" x-text="year"></p>
+                    <h2 class="text-2xl lg:text-3xl text-white font-bold capitalize tracking-tight" x-text="monthName"></h2>
+                    <p class="text-slate-500 text-xs lg:text-sm font-medium" x-text="year"></p>
                 </div>
                 <div class="flex bg-slate-800/80 rounded-xl p-1 shadow-inner border border-slate-700/50">
-                    <button @click="changeMonth(-1)" aria-label="Mes anterior" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="ph-bold ph-caret-left"></i></button>
-                    <button @click="gotoToday()" aria-label="Ir a hoy" class="px-3 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition">HOY</button>
-                    <button @click="changeMonth(1)" aria-label="Mes siguiente" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="ph-bold ph-caret-right"></i></button>
+                    <button @click="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white active:bg-slate-700 transition"><i class="ph-bold ph-caret-left"></i></button>
+                    <button @click="gotoToday()" class="px-3 text-[10px] font-black tracking-wider text-indigo-400 hover:text-indigo-300 transition">HOY</button>
+                    <button @click="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white active:bg-slate-700 transition"><i class="ph-bold ph-caret-right"></i></button>
                 </div>
             </div>
 
-            <div class="glass-panel p-5 mb-6 shadow-xl shadow-black/20">
-                <div class="grid grid-cols-7 gap-3 mb-3">
+            <!-- Grid Calendario -->
+            <div class="glass-panel p-4 lg:p-5 mb-4 lg:mb-6 shadow-xl shadow-black/20">
+                <div class="grid grid-cols-7 gap-2 lg:gap-3 mb-3">
                     <template x-for="d in ['L','M','M','J','V','S','D']"><div class="text-center text-[10px] text-slate-500 font-bold uppercase tracking-wider" x-text="d"></div></template>
                 </div>
                 <div class="grid grid-cols-7 gap-2 lg:gap-3">
                     <template x-for="b in blanks"><div class="aspect-square"></div></template>
                     <template x-for="day in daysInMonth" :key="day">
                         <div @click="selectDay(day)" 
-                             class="aspect-square rounded-xl cursor-pointer flex flex-col items-center justify-center relative transition-all duration-200 group"
+                             class="aspect-square rounded-xl lg:rounded-2xl cursor-pointer flex flex-col items-center justify-center relative transition-all duration-200 group"
                              :class="getDayClass(day)">
-                            <div x-show="hasNote(day)" class="absolute top-1 right-1 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse-slow"></div>
-                            <span class="text-sm font-medium relative z-10" :class="isToday(day) ? 'text-white' : (selectedDay === day ? 'text-white' : 'text-slate-400')" x-text="day"></span>
-                            <div class="flex flex-wrap justify-center content-start gap-0.5 mt-1 w-full px-0.5 z-10">
+                            <!-- Indicador de Nota -->
+                            <div x-show="hasNote(day)" class="absolute top-1 right-1 w-1 lg:w-1.5 h-1 lg:h-1.5 bg-yellow-400 rounded-full"></div>
+                            
+                            <!-- Número Día -->
+                            <span class="text-sm lg:text-base font-medium relative z-10" :class="isToday(day) ? 'text-white' : (selectedDay === day ? 'text-white' : 'text-slate-400')" x-text="day"></span>
+                            
+                            <!-- Puntos Hábitos -->
+                            <div class="flex flex-wrap justify-center content-start gap-0.5 lg:gap-1 mt-0.5 lg:mt-1 w-full px-0.5 z-10 h-2 lg:h-3 overflow-hidden">
                                 <template x-for="(h, i) in habits">
-                                    <div x-show="h.active" class="w-1.5 h-1.5 rounded-full transition-all duration-500 shrink-0" 
-                                         :class="getVal(day, i) >= h.max ? 'shadow-[0_0_8px]' : ''"
+                                    <div x-show="h.active" class="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full shrink-0" 
                                          :style="getDotStyle(day, i, h)"></div>
                                 </template>
                             </div>
-                            <div class="absolute inset-0 bg-indigo-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" x-show="selectedDay !== day"></div>
                         </div>
                     </template>
                 </div>
             </div>
 
-            <div x-show="selectedDay" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 class="glass-panel p-6 border-l-4 relative overflow-hidden group mb-6" 
-                 :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
-                
-                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
-
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                            <i class="ph-duotone ph-calendar-check text-indigo-400"></i>
-                            <span x-text="formatFullDate(selectedDay)"></span>
-                        </h3>
-                    </div>
-                    <button @click="selectedDay = null" aria-label="Cerrar" class="lg:hidden w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="ph ph-x text-slate-400"></i></button>
-                </div>
-
-                <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-3 custom-scrollbar">
-                    <template x-for="(habit, idx) in habits" :key="idx">
-                        <div x-show="habit.active" class="transition-all duration-300" :class="!isHabitActiveToday(habit) ? 'opacity-60 hover:opacity-100' : ''">
-                            <div class="flex justify-between items-end mb-2">
-                                <span class="font-bold text-sm text-white flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full shadow-[0_0_8px]" :style="`background: ${habit.color}; box-shadow: 0 0 10px ${habit.color}80`"></span>
-                                    <span x-text="habit.name"></span>
-                                    <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-gradient-to-r from-yellow-600/50 to-orange-600/50 text-yellow-200 border border-yellow-500/30 px-1.5 rounded uppercase font-bold tracking-wider flex items-center gap-1">
-                                        <i class="ph-fill ph-star"></i> Extra
-                                    </span>
-                                </span>
-                                
-                                <div class="text-xs font-mono">
-                                    <template x-if="habit.type === 'check'">
-                                        <span :class="getVal(selectedDay, idx) >= 1 ? 'text-green-400 font-bold' : 'text-slate-400'" 
-                                              x-text="getVal(selectedDay, idx) >= 1 ? 'Completado' : 'Pendiente'"></span>
-                                    </template>
-                                    <template x-if="habit.type !== 'check'">
-                                        <span>
-                                            <span :class="getVal(selectedDay, idx) >= habit.max ? 'text-green-400 font-bold' : 'text-slate-400'" x-text="getVal(selectedDay, idx)"></span>
-                                            <span class="text-slate-600">/</span>
-                                            <span class="text-slate-500" x-text="`${habit.max} ${habit.unit}`"></span>
-                                        </span>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <div x-show="habit.type !== 'check'" class="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700/50">
-                                <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" aria-label="Restar" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-minus"></i></button>
-                                <div class="relative flex-1 h-2 bg-slate-900 rounded-full overflow-hidden">
-                                    <div class="absolute inset-0 bg-slate-800"></div>
-                                    <div class="h-full transition-all duration-300 relative" :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`">
-                                         <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]"></div>
-                                    </div>
-                                    <input type="range" min="0" :max="habit.max" step="1" class="absolute inset-0 w-full h-full opacity-0 z-10" :value="getVal(selectedDay, idx)" @input="updateVal(idx, $el.value)">
-                                </div>
-                                <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" aria-label="Sumar" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-plus"></i></button>
-                            </div>
-
-                            <div x-show="habit.type === 'check'" @click="toggleCheck(idx)" class="relative cursor-pointer group h-12 bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden flex items-center justify-center transition-all duration-300" :class="getVal(selectedDay, idx) >= 1 ? 'border-transparent' : 'hover:bg-slate-800'">
-                                <div class="absolute inset-0 opacity-0 transition-opacity duration-500 ease-out" :class="getVal(selectedDay, idx) >= 1 ? 'opacity-100' : ''" :style="`background: ${habit.color}; opacity: ${getVal(selectedDay, idx) >= 1 ? 0.2 : 0}`"></div>
-                                <div class="flex items-center gap-2 relative z-10 font-bold transition-all duration-300" :class="getVal(selectedDay, idx) >= 1 ? 'text-white scale-110' : 'text-slate-400 group-hover:text-slate-200'">
-                                    <i class="ph-bold" :class="getVal(selectedDay, idx) >= 1 ? 'ph-check-circle' : 'ph-circle'"></i>
-                                    <span x-text="getVal(selectedDay, idx) >= 1 ? '¡HECHO!' : (isHabitActiveToday(habit) ? 'MARCAR' : 'MARCAR EXTRA')"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                    <div class="mt-6 pt-6 border-t border-slate-700/50 pb-4">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día
-                        </label>
-                        <textarea class="w-full bg-slate-900/50 text-slate-300 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition resize-none custom-scrollbar" rows="3" placeholder="¿Por qué fallaste o qué lograste hoy?..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
-                    </div>
-                </div>
+            <!-- Mensaje vacío si no hay día seleccionado (Solo Desktop) -->
+            <div class="hidden lg:flex flex-1 items-center justify-center text-slate-600 text-sm italic" x-show="!selectedDay">
+                Selecciona un día para ver detalles
             </div>
         </section>
 
-        <!-- SECCIÓN DERECHA: ESTADÍSTICAS Y GUÍA -->
-        <section class="flex-1 lg:flex-[0.6] flex flex-col p-6 bg-slate-950 relative overflow-hidden" id="capture-area">
+
+        <!-- ==========================================
+             SECCIÓN 2: DETALLE DÍA (BOTTOM SHEET EN MÓVIL)
+             Panel lateral en Desktop.
+        ========================================== -->
+        <div x-show="selectedDay" 
+             class="fixed lg:relative inset-x-0 bottom-0 lg:inset-auto lg:flex-[0.6] lg:bg-slate-950 z-50 lg:z-auto"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="translate-y-full lg:translate-y-0 lg:opacity-0"
+             x-transition:enter-end="translate-y-0 lg:opacity-100">
             
-            <!-- NAV SUPERIOR -->
-            <div class="flex gap-4 mb-6 shrink-0 border-b border-slate-800 pb-4 overflow-x-auto scrollbar-hide justify-between">
-                <div class="flex gap-4">
-                    <button @click="switchView('stats')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'stats' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
-                        <i class="ph-bold ph-chart-line-up"></i> Progreso Mes
-                    </button>
-                    <button @click="switchView('year')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'year' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
-                        <i class="ph-bold ph-calendar-blank"></i> Resumen Anual
-                    </button>
-                    <button @click="switchView('insights')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
-                        <i class="ph-bold ph-trophy"></i> Logros
-                    </button>
-                    <button @click="switchView('manual')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'manual' ? 'text-cyan-400 border-cyan-500' : 'text-slate-500 border-transparent hover:text-cyan-300'">
-                        <i class="ph-bold ph-info"></i> Manual
-                    </button>
-                    <button @click="switchView('guide')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'guide' ? 'text-emerald-400 border-emerald-500' : 'text-slate-500 border-transparent hover:text-emerald-300'">
-                        <i class="ph-bold ph-book-open"></i> Estrategias
-                    </button>
-                </div>
+            <!-- Overlay oscuro solo para móvil -->
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm lg:hidden" @click="selectedDay = null"></div>
+
+            <!-- Contenido Panel -->
+            <div class="bottom-sheet lg:static lg:h-full lg:bg-transparent lg:border-none lg:shadow-none lg:overflow-y-auto lg:p-6 flex flex-col custom-scrollbar">
                 
-                <div class="flex gap-2">
-                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="refreshCharts()" aria-label="Recargar Gráficas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition group">
-                        <i class="ph-bold ph-arrow-clockwise group-hover:rotate-180 transition-transform duration-500" :class="refreshing ? 'animate-spin-fast' : ''"></i>
-                    </button>
-                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="shareStats()" aria-label="Compartir Estadísticas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 flex items-center justify-center text-slate-400 hover:text-white transition">
-                        <i class="ph-bold ph-camera"></i>
-                    </button>
+                <!-- Handle para móvil -->
+                <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-4 lg:hidden"></div>
+
+                <div class="px-5 pb-8 lg:px-0 lg:pb-0">
+                    <div class="flex justify-between items-center mb-6 lg:mb-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <span x-text="formatFullDate(selectedDay)"></span>
+                            </h3>
+                            <p class="text-indigo-400 text-sm font-medium mt-1">Registra tu progreso</p>
+                        </div>
+                        <button @click="selectedDay = null" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center lg:hidden"><i class="ph-bold ph-x text-slate-400"></i></button>
+                    </div>
+
+                    <div class="space-y-4 lg:space-y-6">
+                        <template x-for="(habit, idx) in habits" :key="idx">
+                            <div x-show="habit.active" class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-3 h-3 rounded-full" :style="`background: ${habit.color}; box-shadow: 0 0 10px ${habit.color}`"></div>
+                                        <span class="font-bold text-white text-base" x-text="habit.name"></span>
+                                        <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Extra</span>
+                                    </div>
+                                    <div class="text-xs font-mono text-slate-400">
+                                        <span x-show="habit.type !== 'check'">
+                                            <span :class="getVal(selectedDay, idx) >= habit.max ? 'text-emerald-400 font-bold' : ''" x-text="getVal(selectedDay, idx)"></span>
+                                            <span class="opacity-50">/</span> <span x-text="habit.max"></span> <span x-text="habit.unit"></span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Control Deslizante (Counter) -->
+                                <div x-show="habit.type !== 'check'" class="flex items-center gap-3">
+                                    <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition shadow-lg"><i class="ph-bold ph-minus"></i></button>
+                                    <div class="relative flex-1 h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner">
+                                        <div class="absolute inset-0 bg-slate-800"></div>
+                                        <div class="h-full transition-all duration-300 relative" :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`"></div>
+                                        <input type="range" min="0" :max="habit.max" step="1" class="absolute inset-0 w-full h-full opacity-0 z-10" :value="getVal(selectedDay, idx)" @input="updateVal(idx, $el.value)">
+                                    </div>
+                                    <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition shadow-lg"><i class="ph-bold ph-plus"></i></button>
+                                </div>
+
+                                <!-- Botón Check -->
+                                <div x-show="habit.type === 'check'" @click="toggleCheck(idx)" class="h-12 rounded-xl border border-slate-600/50 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 relative overflow-hidden" :class="getVal(selectedDay, idx) >= 1 ? 'border-transparent' : 'bg-slate-900/50'">
+                                    <div class="absolute inset-0 opacity-20 transition-all duration-500" :style="getVal(selectedDay, idx) >= 1 ? `background: ${habit.color}` : ''"></div>
+                                    <i class="ph-bold text-xl transition-all" :class="getVal(selectedDay, idx) >= 1 ? 'ph-check-circle text-white scale-125' : 'ph-circle text-slate-500'"></i>
+                                    <span class="font-bold text-sm" :class="getVal(selectedDay, idx) >= 1 ? 'text-white' : 'text-slate-400'" x-text="getVal(selectedDay, idx) >= 1 ? 'COMPLETADO' : 'MARCAR'"></span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Notas -->
+                        <div class="pt-4 border-t border-slate-700/50">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nota del día</label>
+                            <textarea class="w-full bg-slate-900 text-slate-200 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none transition resize-none" rows="3" placeholder="Pensamientos..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
+                        </div>
+                        
+                        <!-- Espaciador para nav bar móvil -->
+                        <div class="h-12 lg:hidden"></div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- VISTA 1: PROGRESO MENSUAL -->
-            <div x-show="viewMode === 'stats'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 scrollbar-hide pb-20">
-                <div id="stats-scroll-container" class="flex gap-2 mb-6 overflow-x-auto pb-2 shrink-0 scrollbar-hide transition-all">
-                    <template x-for="(h, i) in habits">
-                        <div x-show="h.active" class="glass-panel p-3 min-w-[120px] flex-1 border-t-2" :style="`border-top-color: ${h.color}`">
-                            <div class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1 leading-relaxed pb-0.5" x-text="h.name"></div>
-                            <div class="text-2xl font-bold text-white leading-none">
-                                <span x-text="calcTotal(i)"></span> 
-                                <span class="text-[10px] font-normal text-slate-500" x-show="h.type !== 'check'" x-text="h.unit"></span>
-                                <span class="text-[10px] font-normal text-slate-500" x-show="h.type === 'check'">días</span>
-                            </div>
-                        </div>
-                    </template>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    <template x-for="(h, i) in habits" :key="i">
-                        <div x-show="h.active" class="glass-panel p-4 chart-shine-container flex flex-col h-[220px]">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold uppercase tracking-wider truncate mr-2" :style="`color: ${h.color}`" x-text="h.name"></span>
-                                <span class="text-[10px] text-slate-500 whitespace-nowrap" x-text="h.type === 'check' ? 'Constancia' : h.unit"></span>
-                            </div>
-                            <div class="relative flex-1 min-h-0 w-full">
-                                <canvas :id="'chart-month-' + i"></canvas>
-                            </div>
-                        </div>
-                    </template>
-                </div>
+        <!-- ==========================================
+             SECCIÓN 3: ESTADÍSTICAS / ESTRATEGIAS (DASHBOARD)
+             En móvil es un Tab separado. En desktop es la columna derecha.
+        ========================================== -->
+        <section x-show="isMobile ? (mobileTab !== 'tracker') : true" 
+                 class="flex-1 lg:flex-[0.6] flex flex-col p-4 lg:p-6 bg-slate-950 relative overflow-hidden" 
+                 :class="{'hidden lg:flex': isMobile && mobileTab === 'tracker'}">
+            
+            <!-- Tabs Superiores (Contexto Stats) -->
+            <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide shrink-0 pb-1 border-b border-slate-800/50">
+                <button @click="switchView('stats')" class="px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition" :class="viewMode === 'stats' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'">Progreso</button>
+                <button @click="switchView('year')" class="px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition" :class="viewMode === 'year' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'">Anual</button>
+                <button @click="switchView('insights')" class="px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition" :class="viewMode === 'insights' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'">Logros</button>
+                <button @click="switchView('guide')" class="px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition" :class="viewMode === 'guide' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white'">Estrategias</button>
             </div>
 
-            <!-- VISTA 2: RESUMEN ANUAL -->
-            <div x-show="viewMode === 'year'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 scrollbar-hide pb-20">
-                <div class="glass-panel p-5 mb-6 shrink-0 overflow-x-auto">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i class="ph-bold ph-squares-four"></i> Consistencia Global (<span x-text="year"></span>)
-                    </h4>
-                    <div class="min-w-[700px]">
-                        <div class="flex text-[10px] text-slate-500 mb-1 gap-12 ml-6">
-                            <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dic</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="heatmap-labels text-[9px] text-slate-600 pb-0 mr-1 text-right leading-[10px]">
-                                <span>L</span><span></span><span>X</span><span></span><span>V</span>
-                                <span class="text-red-500/80 font-bold">S</span>
-                                <span class="text-red-500/80 font-bold">D</span>
+            <!-- CONTENIDO DINÁMICO (STATS) -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar pb-20 lg:pb-0" id="stats-container">
+                
+                <!-- VISTA 1: PROGRESO MES -->
+                <div x-show="viewMode === 'stats'" class="space-y-4">
+                     <!-- Resumen rápido scrollable -->
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <template x-for="(h, i) in habits">
+                            <div x-show="h.active" class="glass-panel p-3 min-w-[110px] border-t-2 shrink-0" :style="`border-top-color: ${h.color}`">
+                                <div class="text-[9px] uppercase text-slate-400 font-bold truncate" x-text="h.name"></div>
+                                <div class="text-xl font-bold text-white mt-1">
+                                    <span x-text="calcTotal(i)"></span> <span class="text-[9px] font-normal text-slate-500" x-text="h.type==='check'?'días':h.unit"></span>
+                                </div>
                             </div>
+                        </template>
+                    </div>
+                    <!-- Gráficas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="(h, i) in habits" :key="i">
+                            <div x-show="h.active" class="glass-panel p-4">
+                                <div class="text-xs font-bold uppercase mb-2" :style="`color: ${h.color}`" x-text="h.name"></div>
+                                <div class="h-[180px] w-full relative">
+                                    <canvas :id="'chart-month-' + i"></canvas>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- VISTA 2: ANUAL -->
+                <div x-show="viewMode === 'year'" class="space-y-4">
+                    <div class="glass-panel p-4 overflow-x-auto">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Mapa de Calor Global</h4>
+                        <div class="min-w-[600px] flex gap-2">
+                            <div class="heatmap-labels text-[9px] text-slate-600 text-right leading-[10px] pt-1"><span>L</span><span></span><span>X</span><span></span><span>V</span></div>
                             <div class="heatmap-grid" id="heatmap-container"></div>
                         </div>
                     </div>
+                    <div class="grid grid-cols-1 gap-4">
+                        <template x-for="(h, i) in habits" :key="'year-'+i">
+                            <div x-show="h.active" class="glass-panel p-4">
+                                <div class="flex justify-between items-baseline mb-2">
+                                    <span class="text-xs font-bold uppercase" :style="`color: ${h.color}`" x-text="h.name"></span>
+                                    <span class="text-lg font-black text-white" x-text="getYearlyTotal(i)"></span>
+                                </div>
+                                <div class="h-[150px] w-full relative">
+                                    <canvas :id="'chart-year-' + i"></canvas>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4">
-                    <template x-for="(h, i) in habits" :key="'year-'+i">
-                        <div x-show="h.active" class="glass-panel p-4 flex flex-col md:flex-row gap-6 items-center">
-                            <div class="w-full md:w-1/4 flex flex-col items-center md:items-start border-b md:border-b-0 md:border-r border-slate-700/50 pb-4 md:pb-0 md:pr-4">
-                                <div class="text-xs font-bold uppercase tracking-wider mb-1" :style="`color: ${h.color}`" x-text="h.name"></div>
-                                <div class="text-4xl font-black text-white mb-1" x-text="getYearlyTotal(i).toLocaleString()"></div>
-                                <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Total <span x-text="year"></span></div>
-                            </div>
-                            <div class="relative flex-1 h-[200px] w-full">
-                                <canvas :id="'chart-year-' + i"></canvas>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <!-- VISTA 3: LOGROS -->
-            <div x-show="viewMode === 'insights'" x-transition.opacity class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min overflow-y-auto pr-2 scrollbar-hide h-full pb-20">
-                <div class="glass-panel p-5 md:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 shrink-0">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-fire text-orange-500"></i> Rachas Actuales</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- VISTA 3: LOGROS -->
+                <div x-show="viewMode === 'insights'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <template x-for="(h, i) in habits">
-                            <div x-show="h.active" class="flex flex-col items-center p-2 bg-slate-800/30 rounded-lg">
+                            <div x-show="h.active" class="glass-panel p-3 text-center">
                                 <div class="text-2xl font-black text-white" x-text="getCurrentStreak(i)"></div>
-                                <div class="text-[10px] font-bold uppercase truncate w-full text-center text-slate-400" x-text="h.name"></div>
+                                <div class="text-[9px] text-slate-400 uppercase font-bold mt-1">Racha <span x-text="h.name"></span></div>
                             </div>
                         </template>
                     </div>
+                    <div class="glass-panel p-4">
+                        <h4 class="text-xs font-bold text-white mb-4">Consistencia Mensual</h4>
+                        <div class="space-y-4">
+                            <template x-for="(h, i) in habits">
+                                <div x-show="h.active">
+                                    <div class="flex justify-between text-[10px] mb-1 text-slate-400">
+                                        <span x-text="h.name"></span>
+                                        <span x-text="getProgressText(i)"></span>
+                                    </div>
+                                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-700" :class="getCompletionRate(i)>=100?'bg-emerald-500':'bg-indigo-500'" :style="`width: ${getCompletionRate(i)}%`"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
-                <div class="glass-panel p-5 md:col-span-2 shrink-0">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-target text-indigo-400"></i> Objetivos Mensuales</h3>
-                    <div class="space-y-4">
-                        <template x-for="(h, i) in habits">
-                            <div x-show="h.active" class="group">
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="text-slate-300 font-bold" x-text="h.name"></span>
-                                    <span class="text-slate-500" x-text="getProgressText(i)"></span>
-                                </div>
-                                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-700"
-                                         :class="getCompletionRate(i) >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'" 
-                                         :style="`width: ${getCompletionRate(i)}%`"></div>
-                                </div>
-                            </div>
-                        </template>
+
+                <!-- VISTA 4: ESTRATEGIAS -->
+                <div x-show="viewMode === 'guide'" class="space-y-4">
+                    <div class="glass-panel p-4 bg-gradient-to-r from-emerald-900/50 to-slate-900 border-emerald-500/20">
+                        <h3 class="font-bold text-white text-lg mb-1">Estrategias Mentales</h3>
+                        <p class="text-xs text-slate-400">Hackea tu cerebro para la consistencia.</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                         <div class="glass-panel p-4 guide-card" style="--card-color: #60a5fa">
+                            <div class="flex items-center gap-2 mb-2 text-blue-400"><i class="ph-fill ph-baby text-lg"></i> <span class="font-bold text-xs uppercase">Regla del 1%</span></div>
+                            <p class="text-xs text-slate-300 mb-2">Empieza ridículamente pequeño.</p>
+                            <div class="text-[10px] bg-slate-800/50 p-2 rounded border border-white/5"><span class="line-through text-slate-500 mr-2">Leer 1 hora</span> <span class="text-emerald-400 font-bold">Leer 1 página</span></div>
+                        </div>
+                        <div class="glass-panel p-4 guide-card border-red-500/20" style="--card-color: #f87171">
+                            <div class="flex items-center gap-2 mb-2 text-red-400"><i class="ph-fill ph-warning-octagon text-lg"></i> <span class="font-bold text-xs uppercase">Regla de Oro</span></div>
+                            <p class="text-xl font-black text-white text-center py-2">NUNCA 2 VECES</p>
+                            <p class="text-[10px] text-slate-400 text-center">Fallar un día es un accidente. Dos es un nuevo hábito.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- VISTA 4: MANUAL APP -->
-            <div x-show="viewMode === 'manual'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
-                
-                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-cyan-900/40 to-slate-900 border-cyan-500/20">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
-                            <i class="ph-fill ph-info text-2xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white">Manual de Usuario</h2>
-                            <p class="text-sm text-slate-400">Cómo funciona TriHabit y dónde están tus datos.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    
-                    <!-- Tarjeta Privacidad -->
-                    <div class="glass-panel p-5 border-l-4 border-emerald-500">
-                        <div class="flex items-center gap-2 mb-3 text-emerald-400">
-                            <i class="ph-fill ph-shield-check text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                            Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.
-                        </p>
-                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono">
-                            <i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta Configuración -->
-                    <div class="glass-panel p-5 border-l-4 border-indigo-500">
-                        <div class="flex items-center gap-2 mb-3 text-indigo-400">
-                            <i class="ph-fill ph-sliders text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Configuración</h3>
-                        </div>
-                        <ul class="space-y-2 text-xs text-slate-300">
-                            <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
-                            <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
-                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio el hábito (L, M, X...).</li>
-                        </ul>
-                    </div>
-
-                    <!-- Tarjeta Flujo Diario -->
-                    <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
-                        <div class="flex items-center gap-2 mb-4 text-purple-400">
-                            <i class="ph-fill ph-path text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4>
-                                <p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p>
-                            </div>
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4>
-                                <p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p>
-                            </div>
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4>
-                                <p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta Backup -->
-                    <div class="glass-panel p-5 border-l-4 border-cyan-500">
-                        <div class="flex items-center gap-2 mb-3 text-cyan-400">
-                            <i class="ph-fill ph-floppy-disk text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3>
-                        </div>
-                        <p class="text-xs text-slate-300 mb-3">
-                            Para pasar tus datos al móvil o a otro ordenador:
-                        </p>
-                        <div class="flex gap-2">
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Exportar (Descarga .json)</button>
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Enviar archivo</button>
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">3. Importar</button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- VISTA 5: ESTRATEGIAS -->
-            <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
-                
-                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                            <i class="ph-fill ph-lightbulb text-2xl animate-pulse-slow"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white mb-2">Estrategias Mentales</h2>
-                            <p class="text-sm text-slate-400 leading-relaxed">
-                                Estrategias mentales para hackear tu cerebro y lograr consistencia absoluta.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    
-                    <!-- Tarjeta 1: Empezar Ridículo -->
-                    <div class="glass-panel p-5 guide-card" style="--card-color: #60a5fa">
-                        <div class="flex items-center gap-3 mb-3 text-blue-400">
-                            <i class="ph-fill ph-baby text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">La Regla del 1%</h3>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-3 font-medium">Empieza tan pequeño que sea imposible decir que no.</p>
-                        <div class="bg-slate-900/50 rounded-lg p-3 border border-white/5 space-y-2 text-xs">
-                            <div class="flex items-center gap-2 text-slate-500 line-through decoration-red-500/50">
-                                <i class="ph-bold ph-x text-red-500"></i> "Caminar 1 hora"
-                            </div>
-                            <div class="flex items-center gap-2 text-emerald-400 font-bold">
-                                <i class="ph-bold ph-check"></i> "Caminar 5 minutos"
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta 2: Habit Stacking -->
-                    <div class="glass-panel p-5 guide-card" style="--card-color: #c084fc">
-                        <div class="flex items-center gap-3 mb-3 text-purple-400">
-                            <i class="ph-fill ph-stack text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Apilado de Hábitos</h3>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-3 font-medium">Usa una rutina vieja para disparar una nueva.</p>
-                        <div class="text-center p-2 bg-slate-800/50 rounded-lg border border-purple-500/20">
-                            <span class="text-slate-400 text-xs">Después de</span>
-                            <span class="text-white font-bold text-xs bg-slate-700 px-1 rounded mx-1">[Hábito Actual]</span>
-                            <div class="my-1 text-purple-400"><i class="ph-bold ph-arrow-down"></i></div>
-                            <span class="text-slate-400 text-xs">Haré</span>
-                            <span class="text-purple-300 font-bold text-xs bg-purple-900/30 px-1 rounded mx-1">[Nuevo Hábito]</span>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta 3: Entorno -->
-                    <div class="glass-panel p-5 guide-card" style="--card-color: #facc15">
-                        <div class="flex items-center gap-3 mb-3 text-yellow-400">
-                            <i class="ph-fill ph-house-line text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Arquitectura</h3>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-2">El entorno gana a la motivación.</p>
-                        <ul class="space-y-1">
-                            <li class="tip-bullet">Zapatillas en la puerta.</li>
-                            <li class="tip-bullet">Botella de agua llena en la mesa.</li>
-                            <li class="tip-bullet">App abierta en primera pantalla.</li>
-                        </ul>
-                    </div>
-
-                    <!-- Tarjeta 4: Identidad -->
-                    <div class="glass-panel p-5 guide-card" style="--card-color: #f472b6">
-                        <div class="flex items-center gap-3 mb-3 text-pink-400">
-                            <i class="ph-fill ph-fingerprint text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Identidad</h3>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-3">No digas lo que haces, di quién eres.</p>
-                        <div class="bg-gradient-to-r from-pink-500/10 to-transparent p-3 rounded-l-xl border-l-2 border-pink-500">
-                            <p class="text-xs italic text-pink-200">"No estoy intentando correr..."</p>
-                            <p class="text-sm font-bold text-white mt-1">"Soy un corredor"</p>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta 5: Never Miss Twice -->
-                    <div class="glass-panel p-5 guide-card border-red-500/20" style="--card-color: #f87171">
-                        <div class="flex items-center gap-3 mb-3 text-red-400">
-                            <i class="ph-fill ph-warning-octagon text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Regla de Oro</h3>
-                        </div>
-                        <div class="text-center py-2">
-                            <p class="text-2xl font-black text-white leading-none">NUNCA</p>
-                            <p class="text-sm text-red-400 font-bold uppercase tracking-widest">DOS VECES</p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 text-center mt-2">Fallar un día es un accidente. Fallar dos es el inicio de un nuevo (mal) hábito.</p>
-                    </div>
-
-                    <!-- Tarjeta 6: Recompensa -->
-                    <div class="glass-panel p-5 guide-card" style="--card-color: #4ade80">
-                        <div class="flex items-center gap-3 mb-3 text-green-400">
-                            <i class="ph-fill ph-gift text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Placer Inmediato</h3>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-2">El cerebro repite lo que se siente bien AHORA.</p>
-                        <ul class="space-y-1">
-                            <li class="tip-bullet">Solo escucho mi podcast favorito al entrenar.</li>
-                            <li class="tip-bullet">Marco el check verde (¡dopamina!).</li>
-                        </ul>
-                    </div>
-
-                    <!-- Tarjeta 7: Sistemas -->
-                    <div class="glass-panel p-5 guide-card md:col-span-2 lg:col-span-3 bg-slate-800/30" style="--card-color: #94a3b8">
-                        <div class="flex flex-col md:flex-row gap-4 items-center">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2 text-indigo-300">
-                                    <i class="ph-fill ph-gear text-2xl animate-spin-fast" style="animation-duration: 3s"></i>
-                                    <h3 class="font-bold text-white text-sm uppercase tracking-wide">Sistemas > Motivación</h3>
-                                </div>
-                                <p class="text-xs text-slate-300">
-                                    La motivación es una emoción, sube y baja. Los sistemas son lógicos. Crea un plan B: <span class="text-white font-bold">"Si no puedo ir al gym 1h, haré 10 flexiones en casa".</span> Reduce la fricción para los buenos hábitos y auméntala para los malos.
-                                </p>
-                            </div>
-                            <div class="flex gap-2 text-[10px] font-mono text-slate-500 uppercase tracking-widest border-l border-slate-700 pl-4">
-                                <div class="text-center">
-                                    <div class="text-xl font-bold text-white">X</div>
-                                    <div>Meta Perfecta</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-xl font-bold text-emerald-400">✓</div>
-                                    <div>Mínimo Diario</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </section>
     </main>
 
-    <!-- MODAL DE CONFIGURACIÓN -->
-    <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-md px-4" style="display:none" x-transition.opacity>
-        <div class="glass-panel p-6 w-full max-w-lg shadow-2xl bg-slate-900 border border-slate-700 max-h-[90vh] flex flex-col" @click.away="closeSettings()"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100">
+    <!-- BOTTOM NAV (SOLO MÓVIL) -->
+    <nav class="nav-bottom lg:hidden">
+        <button @click="mobileTab = 'tracker'" class="nav-item" :class="mobileTab === 'tracker' ? 'active' : ''">
+            <i class="ph" :class="mobileTab === 'tracker' ? 'ph-calendar-check-fill' : 'ph-calendar-check'"></i>
+            <span>Hoy</span>
+        </button>
+        <button @click="mobileTab = 'stats'; refreshCharts()" class="nav-item" :class="mobileTab === 'stats' ? 'active' : ''">
+            <i class="ph" :class="mobileTab === 'stats' ? 'ph-chart-bar-fill' : 'ph-chart-bar'"></i>
+            <span>Datos</span>
+        </button>
+        <button @click="openSettings()" class="nav-item">
+            <i class="ph ph-sliders-horizontal"></i>
+            <span>Ajustes</span>
+        </button>
+    </nav>
+
+    <!-- MODAL SETTINGS (Reutilizado y ajustado) -->
+    <div x-show="showSettings" class="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center backdrop-blur-md px-4" style="display:none" x-transition.opacity>
+        <div class="glass-panel p-6 w-full max-w-lg shadow-2xl bg-slate-900 border border-slate-700 max-h-[85vh] flex flex-col" @click.away="closeSettings()">
             <div class="flex justify-between items-center mb-4 shrink-0">
-                <h2 class="text-xl font-bold text-white">Configurar Hábitos</h2>
-                <button @click="closeSettings()" aria-label="Cerrar" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
+                <h2 class="text-lg font-bold text-white">Configuración</h2>
+                <button @click="closeSettings()" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
             </div>
-            <p class="text-xs text-slate-500 mb-4 shrink-0"><i class="ph-bold ph-arrows-down-up"></i> Arrastra para reordenar. Selecciona los días.</p>
-            <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar" id="habits-list">
+            <div class="space-y-3 flex-1 overflow-y-auto custom-scrollbar" id="habits-list">
                 <template x-for="(h, i) in tempHabits" :key="h.id">
-                    <div class="habit-item flex flex-col gap-2 bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 transition-colors hover:bg-slate-800/80 group" :data-id="h.id" :class="!h.active ? 'opacity-50 grayscale' : ''">
-                        <div class="flex gap-3 items-center">
-                            <div class="cursor-move text-slate-600 hover:text-slate-300 drag-handle"><i class="ph-bold ph-dots-six-vertical"></i></div>
-                            <div class="flex items-center">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" x-model="h.active" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
-                                </label>
-                            </div>
-                            <div class="relative group/color">
-                                <input type="color" x-model="h.color" class="w-6 h-6 bg-transparent border-none cursor-pointer rounded-full overflow-hidden shrink-0 opacity-0 absolute inset-0 z-10">
-                                <div class="w-6 h-6 rounded-full shadow-sm border border-slate-600" :style="`background: ${h.color}`"></div>
-                            </div>
-                            <div class="flex-1">
-                                <input type="text" x-model="h.name" class="w-full bg-transparent text-white font-bold border-b border-slate-600 focus:border-indigo-500 focus:border-b-2 outline-none text-sm py-1 transition-colors">
-                            </div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="flex gap-3 items-center mb-2">
+                            <div class="drag-handle text-slate-500"><i class="ph-bold ph-dots-six-vertical"></i></div>
+                            <input type="checkbox" x-model="h.active" class="accent-indigo-500 w-4 h-4">
+                            <input type="color" x-model="h.color" class="w-6 h-6 rounded-full border-none bg-transparent">
+                            <input type="text" x-model="h.name" class="bg-transparent text-white font-bold text-sm border-b border-slate-600 w-full focus:border-indigo-500 outline-none">
                         </div>
-                        <div class="flex flex-col gap-2 pl-10" x-show="h.active">
-                            <div class="flex gap-3 items-end">
-                                <div class="flex-1">
-                                    <label class="text-[9px] text-slate-500 uppercase font-bold px-1 block mb-1">Tipo</label>
-                                    <select x-model="h.type" @change="if(h.type === 'check') h.max = 1" class="w-full bg-slate-900 text-slate-300 text-xs rounded-lg border border-slate-700 px-2 py-1 focus:outline-none focus:border-indigo-500">
-                                        <option value="contador">Contador</option>
-                                        <option value="check">Check (Sí/No)</option>
-                                    </select>
-                                </div>
-                                <div x-show="h.type !== 'check'" class="w-20">
-                                    <label class="text-[9px] text-slate-500 uppercase font-bold px-1 text-right block mb-1">Meta</label>
-                                    <input type="number" x-model="h.max" class="w-full bg-slate-900 text-white text-right rounded-lg border border-slate-700 px-2 py-1 outline-none text-xs font-mono focus:border-indigo-500">
-                                </div>
-                                <div x-show="h.type !== 'check'" class="w-16">
-                                    <label class="text-[9px] text-slate-500 uppercase font-bold px-1 mb-1 block">Unidad</label>
-                                    <input type="text" x-model="h.unit" class="w-full bg-slate-900 text-slate-300 text-center rounded-lg border border-slate-700 px-2 py-1 outline-none text-xs focus:border-indigo-500">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-[9px] text-slate-500 uppercase font-bold px-1 block mb-1">Días activos</label>
-                                <div class="flex justify-between bg-slate-900 p-1 rounded-lg border border-slate-700">
-                                    <template x-for="(dObj, dIdx) in [{val:1, l:'L'},{val:2, l:'M'},{val:3, l:'M'},{val:4, l:'J'},{val:5, l:'V'},{val:6, l:'S'},{val:0, l:'D'}]">
-                                        <button @click="toggleDay(h, dObj.val)" class="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transition-colors" :class="h.days.includes(dObj.val) ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-800'" x-text="dObj.l"></button>
-                                    </template>
-                                </div>
-                            </div>
+                        <div class="pl-8 grid grid-cols-2 gap-2 text-xs" x-show="h.active">
+                             <select x-model="h.type" class="bg-slate-900 text-slate-300 rounded p-1 border border-slate-700"><option value="contador">Contador</option><option value="check">Check</option></select>
+                             <input x-show="h.type!=='check'" type="number" x-model="h.max" class="bg-slate-900 text-white rounded p-1 border border-slate-700 text-center" placeholder="Meta">
                         </div>
                     </div>
                 </template>
             </div>
-            <div class="mt-4 pt-4 border-t border-slate-800 shrink-0">
-                <div class="flex gap-2 mb-4">
-                    <button @click="exportData()" class="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 transition"><i class="ph-bold ph-download-simple"></i> Exportar</button>
-                    <button @click="triggerImport()" class="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 transition"><i class="ph-bold ph-upload-simple"></i> Importar</button>
-                    <input type="file" x-ref="fileInput" class="hidden" accept=".json" @change="handleImport($event)">
-                </div>
-                <div class="flex justify-between items-center">
-                    <button @click="resetAll()" class="text-red-500 text-xs hover:text-red-400 flex items-center gap-1"><i class="ph ph-trash"></i> Reset</button>
-                    <div class="flex gap-3">
-                        <button @click="closeSettings()" class="text-slate-400 text-sm hover:text-white px-3 py-2">Cancelar</button>
-                        <button @click="saveSettings()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition hover:scale-105">Guardar</button>
-                    </div>
-                </div>
+            <div class="mt-4 pt-4 border-t border-slate-800 grid grid-cols-2 gap-2">
+                <button @click="exportData()" class="bg-slate-800 text-indigo-300 py-2 rounded-lg text-xs font-bold border border-slate-700">Exportar Backup</button>
+                <button @click="saveSettings()" class="bg-indigo-600 text-white py-2 rounded-lg text-xs font-bold">Guardar</button>
             </div>
+            <input type="file" x-ref="fileInput" class="hidden" accept=".json" @change="handleImport($event)">
+            <button @click="triggerImport()" class="text-[10px] text-slate-500 mt-2 text-center underline">Importar Backup</button>
         </div>
     </div>
 
@@ -684,433 +431,199 @@
                 showSettings: false,
                 savedMsg: false,
                 viewMode: 'stats',
+                mobileTab: 'tracker', // 'tracker', 'stats', 'settings'
                 refreshing: false,
                 charts: {}, 
                 chartsYear: {},
-                sortableInstance: null,
                 palette: ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6', '#6366f1', '#84cc16', '#a855f7'],
 
+                get isMobile() { return window.innerWidth < 1024; },
                 get daysInMonth() { return new Date(this.year, this.month + 1, 0).getDate(); },
-                get blanks() { 
-                    const firstDayOfMonth = new Date(this.year, this.month, 1).getDay();
-                    return (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1);
-                },
+                get blanks() { const first = new Date(this.year, this.month, 1).getDay(); return first === 0 ? 6 : first - 1; },
                 get month() { return this.currentDate.getMonth(); },
                 get year() { return this.currentDate.getFullYear(); },
                 get monthName() { return this.currentDate.toLocaleString('es-ES', { month: 'long' }); },
 
                 initApp() {
-                    const cfg = localStorage.getItem('trihabit_config_v17');
-                    const dat = localStorage.getItem('trihabit_logs_v17');
-                    const nts = localStorage.getItem('trihabit_notes_v17');
+                    const cfg = localStorage.getItem('trihabit_config_v22');
+                    const dat = localStorage.getItem('trihabit_logs_v22');
+                    const nts = localStorage.getItem('trihabit_notes_v22');
 
                     if (cfg) {
                         this.habits = JSON.parse(cfg);
-                        this.habits.forEach((h, i) => {
-                            if (!h.days) h.days = [0,1,2,3,4,5,6];
-                            if (!h.id) h.id = 'h-' + i + '-' + Date.now();
-                        });
-                        if(this.habits.length === 0) this.seedDefaultHabits();
-                    } else {
-                        this.seedDefaultHabits();
-                    }
+                        this.habits.forEach((h, i) => { if(!h.id) h.id = 'h-'+i; if(!h.days) h.days=[0,1,2,3,4,5,6]; });
+                    } else this.seedDefaultHabits();
 
                     if (dat) this.logs = JSON.parse(dat);
                     if (nts) this.notes = JSON.parse(nts);
 
                     this.gotoToday();
-                    this.$nextTick(() => { setTimeout(() => this.initChart(), 300); });
+                    // Inicializar Sortable para settings
+                    this.$watch('showSettings', (val) => {
+                        if(val) setTimeout(() => {
+                            new Sortable(document.getElementById('habits-list'), { 
+                                handle: '.drag-handle', animation: 150, 
+                                onEnd: (evt) => {
+                                    const item = this.tempHabits.splice(evt.oldIndex, 1)[0];
+                                    this.tempHabits.splice(evt.newIndex, 0, item);
+                                }
+                            });
+                        }, 100);
+                    });
+                    
+                    window.addEventListener('resize', () => { this.$forceUpdate(); });
                 },
-                
+
                 seedDefaultHabits() {
                     this.habits = [
-                        { id: 'h1', name: 'Ejercicio', max: 45, unit: 'min', color: this.palette[0], active: true, type: 'contador', days: [1,3,5] }, 
-                        { id: 'h2', name: 'Lectura', max: 20, unit: 'pag', color: this.palette[1], active: true, type: 'contador', days: [0,1,2,3,4,5,6] },
-                        { id: 'h3', name: 'Meditar', max: 1, unit: '', color: this.palette[2], active: true, type: 'check', days: [0,1,2,3,4,5,6] }
+                        { id: 'h1', name: 'Moverse', max: 30, unit: 'min', color: '#8b5cf6', active: true, type: 'contador', days:[0,1,2,3,4,5,6] },
+                        { id: 'h2', name: 'Leer', max: 10, unit: 'pags', color: '#06b6d4', active: true, type: 'contador', days:[0,1,2,3,4,5,6] },
+                        { id: 'h3', name: 'Meditar', max: 1, unit: '', color: '#10b981', active: true, type: 'check', days:[0,1,2,3,4,5,6] }
                     ];
-                    for(let i=3; i<6; i++) {
-                        this.habits.push({ id: `h${i+1}`, name: `Hábito ${i+1}`, max: 1, unit: 'u', color: this.palette[i] || '#cbd5e1', active: false, type: 'check', days: [0,1,2,3,4,5,6] });
-                    }
                 },
 
                 saveData() {
-                    localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
-                    localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
-                    localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                    this.savedMsg = true;
-                    setTimeout(() => this.savedMsg = false, 1500);
+                    localStorage.setItem('trihabit_config_v22', JSON.stringify(this.habits));
+                    localStorage.setItem('trihabit_logs_v22', JSON.stringify(this.logs));
+                    localStorage.setItem('trihabit_notes_v22', JSON.stringify(this.notes));
+                    this.savedMsg = true; setTimeout(() => this.savedMsg = false, 1500);
                 },
 
                 getKey(day) { return `${this.year}-${(this.month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`; },
-                dateToKey(dateObj) { return `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, '0')}-${dateObj.getDate().toString().padStart(2, '0')}`; },
-                getVal(day, idx) { const key = this.getKey(day); return this.logs[key] ? (this.logs[key][idx] || 0) : 0; },
+                dateToKey(d) { return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`; },
+                getVal(day, idx) { const k = this.getKey(day); return this.logs[k]?.[idx] || 0; },
                 
-                getDayNote(day) { if (!day) return ''; const key = this.getKey(day); return this.notes[key] || ''; },
-                updateDayNote(day, text) { const key = this.getKey(day); this.notes[key] = text; this.saveData(); },
-                hasNote(day) { const key = this.getKey(day); return this.notes[key] && this.notes[key].trim().length > 0; },
+                getDayNote(day) { return this.notes[this.getKey(day)] || ''; },
+                updateDayNote(day, txt) { this.notes[this.getKey(day)] = txt; this.saveData(); },
+                hasNote(day) { return !!this.notes[this.getKey(day)]?.trim(); },
 
                 gotoToday() { this.currentDate = new Date(); this.selectedDay = this.currentDate.getDate(); },
-                changeMonth(val) { this.currentDate = new Date(this.year, this.month + val, 1); this.selectedDay = null; this.forceRedraw(); },
+                changeMonth(v) { this.currentDate = new Date(this.year, this.month + v, 1); this.selectedDay = null; },
                 selectDay(day) { this.selectedDay = day; },
                 isToday(day) { const t = new Date(); return day === t.getDate() && this.month === t.getMonth() && this.year === t.getFullYear(); },
-                
-                getDayClass(day) {
-                    if (this.selectedDay === day) return 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 ring-2 ring-indigo-400 transform scale-105 z-20';
-                    if (this.isToday(day)) return 'bg-slate-800 border border-indigo-500/50';
-                    return 'bg-slate-800/40 hover:bg-slate-700/80';
-                },
 
-                formatFullDate(day) {
-                    if (!day) return '';
-                    const d = new Date(this.year, this.month, day);
-                    const dateStr = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-                    return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+                getDayClass(day) {
+                    if (this.selectedDay === day) return 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 ring-2 ring-indigo-400 z-10';
+                    if (this.isToday(day)) return 'bg-slate-800 border border-white/20';
+                    return 'bg-slate-800/30';
                 },
 
                 getDotStyle(day, idx, habit) {
-                    const dObj = new Date(this.year, this.month, day);
                     const val = this.getVal(day, idx);
-                    const isRequired = habit.days.includes(dObj.getDay());
-
-                    if (val > 0) return `background: ${habit.color}`; 
-                    if (isRequired) return `background: ${habit.color}; opacity: 0.5`; 
-                    return 'display: none';
-                },
-
-                isHabitActiveToday(habit) {
-                    if (!this.selectedDay) return false;
-                    const dObj = new Date(this.year, this.month, this.selectedDay);
-                    return habit.days.includes(dObj.getDay());
+                    if (val >= habit.max) return `background: ${habit.color}`;
+                    if (val > 0) return `background: ${habit.color}; opacity: 0.5`;
+                    const req = habit.days.includes(new Date(this.year, this.month, day).getDay());
+                    return req ? `background: ${habit.color}; opacity: 0.15` : 'display: none';
                 },
 
                 updateVal(idx, val) {
                     if (!this.selectedDay) return;
-                    const parsedVal = val === '' ? 0 : parseFloat(val);
-                    if (parsedVal < 0) return;
-                    const key = this.getKey(this.selectedDay);
-                    if (!this.logs[key]) this.logs[key] = [];
-                    const prevVal = this.logs[key][idx] || 0;
-                    if (prevVal < this.habits[idx].max && parsedVal >= this.habits[idx].max) { this.celebrate(); }
-                    this.logs[key][idx] = parsedVal;
-                    this.logs = { ...this.logs }; 
+                    val = parseFloat(val) || 0; if(val<0) return;
+                    const k = this.getKey(this.selectedDay);
+                    if (!this.logs[k]) this.logs[k] = [];
+                    const prev = this.logs[k][idx] || 0;
+                    if(prev < this.habits[idx].max && val >= this.habits[idx].max) confetti({ origin: {y:0.8}, colors:[this.habits[idx].color] });
+                    this.logs[k][idx] = val; 
                     this.saveData();
-                    if (this.viewMode === 'stats' && this.charts[idx]) {
-                         this.charts[idx].data.datasets[0].data[this.selectedDay - 1] = parsedVal;
-                         this.charts[idx].update('none');
-                    }
-                    if (this.viewMode === 'year') this.forceRedraw(); 
-                },
-
-                toggleCheck(idx) { const current = this.getVal(this.selectedDay, idx); this.updateVal(idx, current >= 1 ? 0 : 1); },
-                celebrate() { confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#6366f1', '#ffffff'] }); },
-
-                checkHabitDone(dateObj, idx) {
-                    const habit = this.habits[idx];
-                    if (!habit.days.includes(dateObj.getDay())) return 'skip';
-                    const key = this.dateToKey(dateObj);
-                    const val = this.logs[key] ? (this.logs[key][idx] || 0) : 0;
-                    return val >= habit.max;
-                },
-
-                getCurrentStreak(idx) {
-                    let streak = 0;
-                    let d = new Date();
-                    for (let i = 0; i < 365; i++) {
-                        const status = this.checkHabitDone(d, idx);
-                        if (status === true) streak++;
-                        else if (status === false) {
-                            const isToday = d.toDateString() === new Date().toDateString();
-                            if (!isToday) break;
-                        }
-                        d.setDate(d.getDate() - 1);
-                    }
-                    return streak;
-                },
-                
-                openSettings() {
-                    this.tempHabits = JSON.parse(JSON.stringify(this.habits));
-                    this.showSettings = true;
-                    this.$nextTick(() => { this.initSortable(); });
-                },
-                
-                closeSettings() { this.showSettings = false; if (this.sortableInstance) this.sortableInstance.destroy(); },
-
-                initSortable() {
-                    const el = document.getElementById('habits-list');
-                    if (!el) return;
-                    this.sortableInstance = new Sortable(el, {
-                        handle: '.drag-handle',
-                        animation: 150,
-                        ghostClass: 'drag-ghost',
-                        chosenClass: 'drag-chosen',
-                        onEnd: (evt) => {
-                            const movedItem = this.tempHabits.splice(evt.oldIndex, 1)[0];
-                            this.tempHabits.splice(evt.newIndex, 0, movedItem);
-                        }
-                    });
-                },
-
-                toggleDay(habit, dayIdx) {
-                    if (habit.days.includes(dayIdx)) {
-                        if(habit.days.length > 1) habit.days = habit.days.filter(d => d !== dayIdx);
-                    } else {
-                        habit.days.push(dayIdx);
-                        habit.days.sort();
+                    if(this.viewMode==='stats' && this.charts[idx]) {
+                        this.charts[idx].data.datasets[0].data[this.selectedDay-1] = val;
+                        this.charts[idx].update('none');
                     }
                 },
+                toggleCheck(idx) { this.updateVal(idx, this.getVal(this.selectedDay, idx) >= 1 ? 0 : 1); },
 
-                saveSettings() {
-                    this.habits = JSON.parse(JSON.stringify(this.tempHabits));
-                    this.saveData();
-                    this.closeSettings();
-                    this.forceRedraw();
-                },
-
-                switchView(mode) {
-                    this.viewMode = mode;
-                    this.forceRedraw();
-                },
-
-                refreshCharts() {
-                    this.refreshing = true;
-                    this.forceRedraw();
-                    setTimeout(() => { this.refreshing = false; }, 500);
-                },
-
-                destroyCharts() {
-                    // Importante: Destruir instancias previas para evitar "glitches" visuales
-                    if (this.charts) {
-                        Object.values(this.charts).forEach(c => {
-                            if(typeof c.destroy === 'function') c.destroy();
-                        });
-                    }
-                    this.charts = {};
-
-                    if (this.chartsYear) {
-                        Object.values(this.chartsYear).forEach(c => {
-                            if(typeof c.destroy === 'function') c.destroy();
-                        });
-                    }
-                    this.chartsYear = {};
-                },
-
-                forceRedraw() {
-                    this.destroyCharts();
-                    
-                    this.$nextTick(() => {
-                        if (this.viewMode === 'stats') {
-                            this.initChart();
-                        } else if (this.viewMode === 'year') {
-                            this.initYearChart(); 
-                            this.renderHeatmap();
-                        }
-                    });
-                },
-
-                renderHeatmap() {
-                    const container = document.getElementById('heatmap-container');
-                    if (!container) return;
-                    container.innerHTML = '';
-                    const today = new Date();
-                    const startDate = new Date();
-                    startDate.setDate(today.getDate() - 364);
-                    while(startDate.getDay() !== 1) { startDate.setDate(startDate.getDate() - 1); }
-
-                    let currentDate = new Date(startDate);
-                    while (currentDate <= today) {
-                        const dateKey = this.dateToKey(currentDate);
-                        let totalPotential = 0; let totalAchieved = 0;
-                        this.habits.forEach((h, i) => {
-                            if (h.active && (h.days.includes(currentDate.getDay()) || (this.logs[dateKey] && this.logs[dateKey][i] > 0))) {
-                                if (h.days.includes(currentDate.getDay())) totalPotential++;
-                                
-                                const val = this.logs[dateKey] ? (this.logs[dateKey][i] || 0) : 0;
-                                if (val >= h.max) totalAchieved++;
-                                else if (val > 0) totalAchieved += (val / h.max);
-                            }
-                        });
-                        const intensity = totalPotential > 0 ? (totalAchieved / totalPotential) : 0;
-                        const cell = document.createElement('div');
-                        cell.className = 'heatmap-cell transition-all duration-300';
-                        let bg = 'rgba(30, 41, 59, 0.5)';
-                        if (intensity > 0) bg = '#0e4429';
-                        if (intensity > 0.25) bg = '#006d32';
-                        if (intensity > 0.5) bg = '#26a641';
-                        if (intensity > 0.75) bg = '#39d353';
-                        if (intensity > 1) bg = '#22c55e';
-                        
-                        cell.style.backgroundColor = bg;
-                        cell.title = `${currentDate.toLocaleDateString()}: ${Math.round(intensity*100)}%`;
-                        container.appendChild(cell);
-                        currentDate.setDate(currentDate.getDate() + 1);
-                    }
-                },
-
-                shareStats() {
-                    const element = document.getElementById('capture-area');
-                    const scrollContainer = document.getElementById('stats-scroll-container');
-                    
-                    if (!element) return;
-                    
-                    const originalOverflow = element.style.overflow;
-                    const originalHeight = element.style.height;
-                    const originalPadding = element.style.paddingBottom;
-                    
-                    let originalScrollClass = '';
-                    if (scrollContainer) {
-                        originalScrollClass = scrollContainer.className;
-                        scrollContainer.classList.remove('overflow-x-auto');
-                        scrollContainer.classList.add('flex-wrap');
-                    }
-                    
-                    element.style.overflow = 'visible';
-                    element.style.height = 'auto'; 
-                    element.style.paddingBottom = '50px'; 
-                    
-                    const flash = document.createElement('div');
-                    flash.className = 'fixed inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-500';
-                    document.body.appendChild(flash);
-                    setTimeout(() => flash.classList.add('opacity-0'), 50);
-                    setTimeout(() => flash.remove(), 500);
-
-                    html2canvas(element, {
-                        backgroundColor: '#020617',
-                        scale: 2,
-                        windowHeight: element.scrollHeight + 200 
-                    }).then(canvas => {
-                        element.style.overflow = originalOverflow;
-                        element.style.height = originalHeight;
-                        element.style.paddingBottom = originalPadding;
-                        if (scrollContainer) {
-                            scrollContainer.className = originalScrollClass;
-                        }
-
-                        const link = document.createElement('a');
-                        link.download = `trihabit-stats-${this.dateToKey(new Date())}.png`;
-                        link.href = canvas.toDataURL();
-                        link.click();
-                    }).catch(() => {
-                        element.style.overflow = originalOverflow;
-                        element.style.height = originalHeight;
-                        element.style.paddingBottom = originalPadding;
-                        if (scrollContainer) {
-                            scrollContainer.className = originalScrollClass;
-                        }
-                    });
-                },
-
+                // --- Settings & Import/Export ---
+                openSettings() { this.tempHabits = JSON.parse(JSON.stringify(this.habits)); this.showSettings = true; },
+                closeSettings() { this.showSettings = false; },
+                saveSettings() { this.habits = JSON.parse(JSON.stringify(this.tempHabits)); this.saveData(); this.closeSettings(); this.refreshCharts(); },
                 exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '19.5' };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
+                    const blob = new Blob([JSON.stringify({config:this.habits, logs:this.logs, notes:this.notes},null,2)], {type:'application/json'});
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'trihabit_backup.json'; a.click();
                 },
-
                 triggerImport() { this.$refs.fileInput.click(); },
                 handleImport(e) {
                     const f = e.target.files[0]; if(!f) return;
-                    const r = new FileReader();
-                    r.onload = (ev) => {
-                        try {
-                            const d = JSON.parse(ev.target.result);
-                            if(d.config && d.logs) {
-                                if(confirm("Sobrescribir datos actuales?")) {
-                                    this.habits = d.config; this.logs = d.logs; 
-                                    if(d.notes) this.notes = d.notes;
-                                    this.saveData(); location.reload();
-                                }
-                            }
-                        } catch(x) { alert("Error archivo inválido"); }
+                    const r = new FileReader(); r.onload = (ev) => {
+                        try { const d = JSON.parse(ev.target.result); 
+                        if(d.config) { this.habits=d.config; this.logs=d.logs||{}; this.notes=d.notes||{}; this.saveData(); location.reload(); }
+                        } catch(e) { alert('Error archivo'); }
                     }; r.readAsText(f);
                 },
 
-                calcTotal(idx) {
-                    const prefix = `${this.year}-${(this.month+1).toString().padStart(2,'0')}`;
-                    return Object.keys(this.logs).filter(k => k.startsWith(prefix)).reduce((acc, k) => acc + (this.logs[k][idx] || 0), 0);
+                // --- Stats & Helpers ---
+                formatFullDate(day) { return new Date(this.year, this.month, day).toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'}); },
+                isHabitActiveToday(h) { return h.days.includes(new Date(this.year, this.month, this.selectedDay).getDay()); },
+                calcTotal(idx) { return Object.entries(this.logs).filter(([k]) => k.startsWith(this.getKey(1).substring(0,7))).reduce((a, [k,v]) => a + (v[idx]||0), 0); },
+                getCurrentStreak(idx) {
+                    let s=0, d=new Date();
+                    for(let i=0;i<365;i++) {
+                        const k=this.dateToKey(d); const v = this.logs[k]?.[idx]||0;
+                        if(v>=this.habits[idx].max) s++; else if(this.habits[idx].days.includes(d.getDay()) && k !== this.dateToKey(new Date())) break;
+                        d.setDate(d.getDate()-1);
+                    } return s;
                 },
-
                 getCompletionRate(idx) {
-                    const habit = this.habits[idx];
-                    let potential = 0; let actual = 0;
-                    for(let i=1; i<=this.daysInMonth; i++) {
-                        const d = new Date(this.year, this.month, i);
-                        const isRequired = habit.days.includes(d.getDay());
-                        if (isRequired) potential += habit.max;
-                        actual += this.getVal(i, idx);
-                    }
-                    if (potential === 0) return 0;
-                    return (actual / potential) * 100;
+                    let pot=0, act=0;
+                    for(let i=1;i<=this.daysInMonth;i++) {
+                        if(this.habits[idx].days.includes(new Date(this.year,this.month,i).getDay())) pot+=this.habits[idx].max;
+                        act+=this.getVal(i, idx);
+                    } return pot===0?0:(act/pot)*100;
                 },
+                getProgressText(idx) { return Math.round(this.getCompletionRate(idx)) + '%'; },
+                getYearlyTotal(idx) { return Object.entries(this.logs).filter(([k]) => k.startsWith(this.year)).reduce((a,[k,v])=>a+(v[idx]||0),0); },
 
-                getProgressText(idx) { return Math.round(this.getCompletionRate(idx)) + '% Completado'; },
-
-                getYearlyTotal(idx) {
-                    const yearData = new Array(12).fill(0);
-                    const prefix = this.year + '-';
-                    Object.keys(this.logs).forEach(key => {
-                        if (key.startsWith(prefix)) {
-                            const m = parseInt(key.split('-')[1]) - 1;
-                            yearData[m] += (this.logs[key][idx] || 0);
-                        }
+                // --- Charts Logic ---
+                switchView(m) { this.viewMode=m; this.refreshCharts(); },
+                refreshCharts() {
+                    Object.values(this.charts).forEach(c=>c.destroy()); this.charts={};
+                    Object.values(this.chartsYear).forEach(c=>c.destroy()); this.chartsYear={};
+                    
+                    this.$nextTick(() => {
+                        if(this.viewMode === 'stats') this.renderMonthCharts();
+                        if(this.viewMode === 'year') { this.renderYearCharts(); this.renderHeatmap(); }
                     });
-                    return yearData.reduce((a, b) => a + b, 0);
                 },
-
-                initChart() {
-                    this.habits.forEach((h, index) => {
-                        if (!h.active) return;
-                        const ctx = document.getElementById('chart-month-' + index);
-                        if (!ctx) return;
-                        // Charts ya destruidos en forceRedraw
-                        const days = Array.from({length: this.daysInMonth}, (_, i) => i + 1);
-                        const vals = days.map(d => this.getVal(d, index));
-
-                        this.charts[index] = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: days,
-                                datasets: [{
-                                    data: vals, borderColor: h.color, borderWidth: 2,
-                                    backgroundColor: (c) => {
-                                        const g = c.chart.ctx.createLinearGradient(0,0,0,200);
-                                        g.addColorStop(0, h.color+'60'); g.addColorStop(1, h.color+'00'); return g;
-                                    },
-                                    fill: true, pointRadius: 0, pointHitRadius: 10
-                                }]
-                            },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: { legend: {display: false} },
-                                scales: { x: {display: false}, y: {display: false, min: 0} },
-                                animation: { duration: 0 }
-                            }
+                renderMonthCharts() {
+                    this.habits.forEach((h, i) => {
+                        const ctx = document.getElementById('chart-month-'+i); if(!ctx || !h.active) return;
+                        const data = Array.from({length:this.daysInMonth}, (_,d) => this.getVal(d+1, i));
+                        this.charts[i] = new Chart(ctx, {
+                            type: 'line', data: { labels: data.map((_,x)=>x+1), datasets: [{ data, borderColor: h.color, borderWidth: 2, pointRadius:0, fill:true, backgroundColor: h.color+'20' }] },
+                            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:false}, scales:{x:{display:false}, y:{display:false, min:0}} }
                         });
                     });
                 },
-
-                initYearChart() {
-                    const months = ['E','F','M','A','M','J','J','A','S','O','N','D'];
-                    this.habits.forEach((h, index) => {
-                        if (!h.active) return;
-                        const ctx = document.getElementById('chart-year-' + index);
-                        if (!ctx) return;
+                renderYearCharts() {
+                    this.habits.forEach((h, i) => {
+                        const ctx = document.getElementById('chart-year-'+i); if(!ctx || !h.active) return;
                         const data = new Array(12).fill(0);
-                        Object.keys(this.logs).forEach(k => { if(k.startsWith(this.year)) data[parseInt(k.split('-')[1])-1] += (this.logs[k][index]||0); });
-                        
-                        // Guardamos la referencia en this.chartsYear (solución al bug)
-                        this.chartsYear[index] = new Chart(ctx, {
-                            type: 'bar',
-                            data: { labels: months, datasets: [{ data: data, backgroundColor: h.color, borderRadius: 3 }] },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: { legend: {display: false} },
-                                scales: { x: { grid: {display:false}, ticks: {color: '#64748b'} }, y: { display: false } }
-                            }
+                        Object.entries(this.logs).forEach(([k,v]) => { if(k.startsWith(this.year)) data[parseInt(k.split('-')[1])-1] += (v[i]||0); });
+                        this.chartsYear[i] = new Chart(ctx, {
+                            type: 'bar', data: { labels: ['E','F','M','A','M','J','J','A','S','O','N','D'], datasets: [{ data, backgroundColor: h.color, borderRadius:2 }] },
+                            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:false}, scales:{x:{grid:{display:false}, ticks:{color:'#64748b'}}, y:{display:false}} }
                         });
                     });
                 },
-
-                resetAll() { if(confirm("¿Borrar TODO? No hay vuelta atrás.")) { localStorage.clear(); location.reload(); } }
+                renderHeatmap() {
+                    const c = document.getElementById('heatmap-container'); if(!c) return; c.innerHTML='';
+                    let d = new Date(); d.setDate(d.getDate()-364); while(d.getDay()!==1) d.setDate(d.getDate()-1);
+                    const end = new Date();
+                    while(d<=end) {
+                        const k=this.dateToKey(d);
+                        let p=0, a=0;
+                        this.habits.forEach((h,i) => { 
+                            if(h.active) {
+                                if(h.days.includes(d.getDay())) p++;
+                                const v = this.logs[k]?.[i]||0;
+                                if(v>=h.max) a++; else if(v>0) a+=(v/h.max);
+                            }
+                        });
+                        const div = document.createElement('div'); div.className='heatmap-cell';
+                        const int = p>0 ? a/p : 0;
+                        div.style.backgroundColor = int===0?'rgba(255,255,255,0.05)': (int>=1?'#22c55e':(int>0.5?'#16a34a':'#0f5132'));
+                        c.appendChild(div); d.setDate(d.getDate()+1);
+                    }
+                }
             }
         }
     </script>
