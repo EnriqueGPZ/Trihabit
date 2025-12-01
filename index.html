@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHabit v21.6 - Polished Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TriHabit v21.6 - Mobile UX Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -31,6 +31,9 @@
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' },
                         }
+                    },
+                    screens: {
+                        'xs': '380px',
                     }
                 }
             }
@@ -38,14 +41,23 @@
     </script>
 
     <style>
-        body { background-color: #020617; color: #e2e8f0; }
+        body { background-color: #020617; color: #e2e8f0; -webkit-tap-highlight-color: transparent; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
         .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
         
+        /* Nav Móvil */
+        .mobile-nav { background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Sliders */
         input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
+        /* Thumb Desktop */
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; margin-top: -6px; box-shadow: 0 0 10px rgba(255,255,255,0.5); transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        /* Sliders Móvil (Más grandes para el dedo) */
+        .mobile-slider::-webkit-slider-thumb { height: 28px !important; width: 28px !important; margin-top: -12px !important; box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important; }
+        .mobile-slider::-webkit-slider-runnable-track { height: 4px !important; border-radius: 2px !important; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
@@ -79,14 +91,13 @@
         .guide-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3); border-color: rgba(99, 102, 241, 0.3); }
         .guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
         
-        /* CORRECCIÓN: Usando CSS estándar en lugar de @apply para asegurar el posicionamiento correcto */
         .tip-bullet { 
             position: relative; 
-            padding-left: 1.5rem; /* pl-6 */
-            margin-left: 0.5rem; /* ml-2 */
-            color: #cbd5e1; /* text-slate-300 */
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.625; /* leading-relaxed */
+            padding-left: 1.5rem; 
+            margin-left: 0.5rem; 
+            color: #cbd5e1; 
+            font-size: 0.875rem; 
+            line-height: 1.625; 
         }
         .tip-bullet::before { 
             content: '•'; 
@@ -103,9 +114,10 @@
         .manual-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #6366f1; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white" x-data="app()" x-init="initApp()" x-cloak>
+<body class="h-[100dvh] flex flex-col selection:bg-indigo-500 selection:text-white overflow-hidden" x-data="app()" x-init="initApp()" x-cloak>
 
-    <header class="glass h-16 shrink-0 flex items-center justify-between px-6 z-30 sticky top-0">
+    <!-- HEADER (Adaptativo) -->
+    <header class="glass h-16 shrink-0 flex items-center justify-between px-4 lg:px-6 z-30 sticky top-0">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                 <i class="ph-bold ph-chart-polar"></i>
@@ -116,7 +128,7 @@
         </div>
         <div class="flex items-center gap-4">
             <div x-show="savedMsg" x-transition.opacity.duration.500ms class="flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-900/30 px-3 py-1 rounded-full border border-emerald-500/20">
-                <i class="ph-bold ph-check"></i> Guardado
+                <i class="ph-bold ph-check"></i> <span class="hidden xs:inline">Guardado</span>
             </div>
             <button @click="openSettings()" aria-label="Abrir configuración" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
                 <i class="ph ph-gear text-xl"></i>
@@ -124,12 +136,16 @@
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col lg:flex-row relative z-10 overflow-hidden h-[calc(100vh-64px)]">
+    <main class="flex-1 flex flex-col lg:flex-row relative z-10 overflow-hidden h-full">
         
-        <!-- SECCIÓN IZQUIERDA: CALENDARIO -->
-        <section class="flex-1 lg:flex-[0.4] flex flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 overflow-y-auto scrollbar-hide">
+        <!-- =============================================================== -->
+        <!-- SECCIÓN IZQUIERDA: CALENDARIO                                   -->
+        <!-- En PC: Siempre visible. En Móvil: Solo si tab === 'calendar'    -->
+        <!-- =============================================================== -->
+        <section class="flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 overflow-y-auto scrollbar-hide lg:flex lg:flex-[0.4]"
+                 :class="mobileTab === 'calendar' ? 'flex flex-1' : 'hidden'">
             
-            <div class="flex justify-between items-end mb-8 px-1">
+            <div class="flex justify-between items-end mb-8 px-1 shrink-0">
                 <div>
                     <h2 class="text-3xl text-white font-bold capitalize tracking-tight" x-text="monthName"></h2>
                     <p class="text-slate-500 text-sm" x-text="year"></p>
@@ -141,14 +157,14 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-5 mb-6 shadow-xl shadow-black/20">
+            <div class="glass-panel p-5 mb-6 shadow-xl shadow-black/20 shrink-0">
                 <div class="grid grid-cols-7 gap-3 mb-3">
                     <template x-for="d in ['L','M','M','J','V','S','D']"><div class="text-center text-[10px] text-slate-500 font-bold uppercase tracking-wider" x-text="d"></div></template>
                 </div>
                 <div class="grid grid-cols-7 gap-2 lg:gap-3">
                     <template x-for="b in blanks"><div class="aspect-square"></div></template>
                     <template x-for="day in daysInMonth" :key="day">
-                        <div @click="selectDay(day)" 
+                        <div @click="selectDay(day); if(isMobile) mobileTab = 'today'" 
                              class="aspect-square rounded-xl cursor-pointer flex flex-col items-center justify-center relative transition-all duration-200 group"
                              :class="getDayClass(day)">
                             <div x-show="hasNote(day)" class="absolute top-1 right-1 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse-slow"></div>
@@ -166,64 +182,49 @@
                 </div>
             </div>
 
+            <!-- DETALLE DÍA (SOLO PC) -->
+            <!-- En móvil, el detalle del día es una pestaña aparte completa ('today') -->
             <div x-show="selectedDay" 
                  x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 class="glass-panel p-6 border-l-4 relative overflow-hidden group mb-6" 
+                 class="hidden lg:block glass-panel p-6 border-l-4 relative overflow-hidden group mb-6" 
                  :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
-                
-                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
-
-                <div class="flex justify-between items-center mb-6">
+                 <!-- (Contenido idéntico a tu versión PC) -->
+                 <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
+                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h3 class="text-xl font-bold text-white flex items-center gap-2">
                             <i class="ph-duotone ph-calendar-check text-indigo-400"></i>
                             <span x-text="formatFullDate(selectedDay)"></span>
                         </h3>
                     </div>
-                    <button @click="selectedDay = null" aria-label="Cerrar" class="lg:hidden w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="ph ph-x text-slate-400"></i></button>
                 </div>
-
                 <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-3 custom-scrollbar">
-                    <template x-for="(habit, idx) in habits" :key="idx">
+                    <template x-for="(habit, idx) in habits" :key="'pc-'+idx">
                         <div x-show="habit.active" class="transition-all duration-300" :class="!isHabitActiveToday(habit) ? 'opacity-60 hover:opacity-100' : ''">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="font-bold text-sm text-white flex items-center gap-2">
                                     <span class="w-2 h-2 rounded-full shadow-[0_0_8px]" :style="`background: ${habit.color}; box-shadow: 0 0 10px ${habit.color}80`"></span>
                                     <span x-text="habit.name"></span>
-                                    <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-gradient-to-r from-yellow-600/50 to-orange-600/50 text-yellow-200 border border-yellow-500/30 px-1.5 rounded uppercase font-bold tracking-wider flex items-center gap-1">
-                                        <i class="ph-fill ph-star"></i> Extra
-                                    </span>
+                                    <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-gradient-to-r from-yellow-600/50 to-orange-600/50 text-yellow-200 border border-yellow-500/30 px-1.5 rounded uppercase font-bold tracking-wider flex items-center gap-1"><i class="ph-fill ph-star"></i> Extra</span>
                                 </span>
-                                
                                 <div class="text-xs font-mono">
                                     <template x-if="habit.type === 'check'">
-                                        <span :class="getVal(selectedDay, idx) >= 1 ? 'text-green-400 font-bold' : 'text-slate-400'" 
-                                              x-text="getVal(selectedDay, idx) >= 1 ? 'Completado' : 'Pendiente'"></span>
+                                        <span :class="getVal(selectedDay, idx) >= 1 ? 'text-green-400 font-bold' : 'text-slate-400'" x-text="getVal(selectedDay, idx) >= 1 ? 'Completado' : 'Pendiente'"></span>
                                     </template>
                                     <template x-if="habit.type !== 'check'">
-                                        <span>
-                                            <span :class="getVal(selectedDay, idx) >= habit.max ? 'text-green-400 font-bold' : 'text-slate-400'" x-text="getVal(selectedDay, idx)"></span>
-                                            <span class="text-slate-600">/</span>
-                                            <span class="text-slate-500" x-text="`${habit.max} ${habit.unit}`"></span>
-                                        </span>
+                                        <span><span :class="getVal(selectedDay, idx) >= habit.max ? 'text-green-400 font-bold' : 'text-slate-400'" x-text="getVal(selectedDay, idx)"></span><span class="text-slate-600">/</span><span class="text-slate-500" x-text="`${habit.max} ${habit.unit}`"></span></span>
                                     </template>
                                 </div>
                             </div>
-
                             <div x-show="habit.type !== 'check'" class="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700/50">
-                                <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" aria-label="Restar" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-minus"></i></button>
+                                <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-minus"></i></button>
                                 <div class="relative flex-1 h-2 bg-slate-900 rounded-full overflow-hidden">
                                     <div class="absolute inset-0 bg-slate-800"></div>
-                                    <div class="h-full transition-all duration-300 relative" :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`">
-                                         <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]"></div>
-                                    </div>
+                                    <div class="h-full transition-all duration-300 relative" :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`"><div class="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]"></div></div>
                                     <input type="range" min="0" :max="habit.max" step="1" class="absolute inset-0 w-full h-full opacity-0 z-10" :value="getVal(selectedDay, idx)" @input="updateVal(idx, $el.value)">
                                 </div>
-                                <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" aria-label="Sumar" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-plus"></i></button>
+                                <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-plus"></i></button>
                             </div>
-
                             <div x-show="habit.type === 'check'" @click="toggleCheck(idx)" class="relative cursor-pointer group h-12 bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden flex items-center justify-center transition-all duration-300" :class="getVal(selectedDay, idx) >= 1 ? 'border-transparent' : 'hover:bg-slate-800'">
                                 <div class="absolute inset-0 opacity-0 transition-opacity duration-500 ease-out" :class="getVal(selectedDay, idx) >= 1 ? 'opacity-100' : ''" :style="`background: ${habit.color}; opacity: ${getVal(selectedDay, idx) >= 1 ? 0.2 : 0}`"></div>
                                 <div class="flex items-center gap-2 relative z-10 font-bold transition-all duration-300" :class="getVal(selectedDay, idx) >= 1 ? 'text-white scale-110' : 'text-slate-400 group-hover:text-slate-200'">
@@ -234,19 +235,109 @@
                         </div>
                     </template>
                     <div class="mt-6 pt-6 border-t border-slate-700/50 pb-4">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día
-                        </label>
-                        <textarea class="w-full bg-slate-900/50 text-slate-300 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition resize-none custom-scrollbar" rows="3" placeholder="¿Por qué fallaste o qué lograste hoy?..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día</label>
+                        <textarea class="w-full bg-slate-900/50 text-slate-300 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none transition resize-none custom-scrollbar" rows="3" placeholder="Notas..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
                     </div>
+                </div>
+            </div>
+            <!-- Espaciador móvil para nav inferior -->
+            <div class="h-20 lg:hidden shrink-0"></div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SECCIÓN CENTRAL MÓVIL: HOY (NUEVA UX)                           -->
+        <!-- En PC: Oculto. En Móvil: Visible si tab === 'today'             -->
+        <!-- =============================================================== -->
+        <section class="flex flex-col flex-1 bg-slate-950 overflow-y-auto custom-scrollbar relative lg:hidden"
+                 x-show="mobileTab === 'today'">
+            
+            <!-- Sticky Date Header para Móvil -->
+            <div class="sticky top-0 z-20 glass pb-4 pt-4 px-4 mb-4 shadow-lg shadow-black/20">
+                <div class="flex justify-between items-center mb-4">
+                     <button @click="changeDayOffset(-1)" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 active:bg-slate-700 active:scale-95 transition"><i class="ph-bold ph-caret-left"></i></button>
+                     <div class="text-center">
+                         <h2 class="text-white font-bold text-lg flex items-center justify-center gap-2">
+                            <span x-text="isToday(selectedDay) ? 'Hoy' : formatFullDate(selectedDay).split(',')[0]"></span>
+                         </h2>
+                         <p class="text-indigo-400 text-xs font-medium uppercase tracking-wide" x-text="formatFullDate(selectedDay)"></p>
+                     </div>
+                     <button @click="changeDayOffset(1)" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 active:bg-slate-700 active:scale-95 transition"><i class="ph-bold ph-caret-right"></i></button>
+                </div>
+                <!-- Mini barra progreso -->
+                <div class="flex gap-1 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                     <template x-for="(h, i) in habits">
+                         <div x-show="h.active" class="h-full transition-all duration-500" 
+                              :style="`width: ${100/habits.filter(x=>x.active).length}%; background: ${h.color}; opacity: ${Math.min((getVal(selectedDay, i) / h.max), 1)}`"></div>
+                     </template>
+                </div>
+            </div>
+
+            <!-- Lista Hábitos Móvil (Cards Grandes) -->
+            <div class="px-4 pb-24 space-y-4">
+                <template x-for="(habit, idx) in habits" :key="'mob-'+idx">
+                    <div x-show="habit.active" class="glass-panel p-5 active:scale-[0.99] transition-transform duration-200 border-l-4"
+                         :style="`border-left-color: ${habit.color}`">
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-base text-white flex items-center gap-2" x-text="habit.name"></h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span x-show="!isHabitActiveToday(habit)" class="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-1.5 rounded uppercase font-bold">Extra</span>
+                                    <span class="text-xs text-slate-500" x-text="habit.type === 'check' ? 'Hábito diario' : `Meta: ${habit.max} ${habit.unit}`"></span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-2xl font-black" :style="`color: ${getVal(selectedDay, idx) >= habit.max ? habit.color : '#64748b'}`" x-text="getVal(selectedDay, idx)"></span>
+                                <span class="text-xs text-slate-600 font-bold" x-show="habit.type !== 'check'">/ <span x-text="habit.max"></span></span>
+                            </div>
+                        </div>
+
+                        <!-- Controles Móviles -->
+                        <div x-show="habit.type !== 'check'" class="flex flex-col gap-3">
+                            <div class="relative h-12 flex items-center">
+                                <div class="absolute inset-0 bg-slate-900 rounded-xl overflow-hidden border border-slate-700">
+                                    <div class="h-full transition-all duration-300 relative opacity-40" :style="`width: ${Math.min((getVal(selectedDay, idx) / habit.max) * 100, 100)}%; background: ${habit.color}`"></div>
+                                </div>
+                                <input type="range" min="0" :max="habit.max" step="1" class="absolute inset-0 w-full h-full z-10 opacity-0 touch-pan-x mobile-slider" :value="getVal(selectedDay, idx)" @input="updateVal(idx, $el.value)">
+                                <div class="absolute inset-0 pointer-events-none flex justify-between px-4 items-center text-xs font-bold text-slate-400">
+                                    <span>0</span><span>Desliza</span><span x-text="habit.max"></span>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" class="flex-1 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xl active:bg-slate-600 transition shadow-lg"><i class="ph-bold ph-minus"></i></button>
+                                <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" class="flex-1 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xl active:bg-slate-600 transition shadow-lg"><i class="ph-bold ph-plus"></i></button>
+                            </div>
+                        </div>
+
+                        <div x-show="habit.type === 'check'" @click="toggleCheck(idx)" class="h-14 w-full rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden"
+                             :class="getVal(selectedDay, idx) >= 1 ? '' : 'bg-slate-800 border border-slate-700'">
+                             <div class="absolute inset-0 transition-opacity duration-300" :style="`background: ${habit.color}; opacity: ${getVal(selectedDay, idx) >= 1 ? 0.2 : 0}`"></div>
+                             <div class="flex items-center gap-3 relative z-10">
+                                 <i class="ph-fill text-2xl" :class="getVal(selectedDay, idx) >= 1 ? 'ph-check-circle text-white' : 'ph-circle text-slate-500'"></i>
+                                 <span class="font-bold uppercase tracking-wide" :class="getVal(selectedDay, idx) >= 1 ? 'text-white' : 'text-slate-400'" x-text="getVal(selectedDay, idx) >= 1 ? 'COMPLETADO' : 'MARCAR COMO HECHO'"></span>
+                             </div>
+                             <div x-show="getVal(selectedDay, idx) >= 1" class="absolute inset-0 border-2 rounded-xl" :style="`border-color: ${habit.color}`"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="mt-6 pt-6 border-t border-slate-800">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día</label>
+                    <textarea class="w-full bg-slate-900/50 text-slate-300 text-base rounded-xl border border-slate-700 p-4 focus:border-indigo-500 focus:outline-none transition resize-none" rows="3" placeholder="Reflexiones..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
                 </div>
             </div>
         </section>
 
-        <!-- SECCIÓN DERECHA: ESTADÍSTICAS Y GUÍA -->
-        <section class="flex-1 lg:flex-[0.6] flex flex-col p-6 bg-slate-950 relative overflow-hidden" id="capture-area">
+        <!-- =============================================================== -->
+        <!-- SECCIÓN DERECHA: ESTADÍSTICAS Y GUÍA (PC Y MÓVIL)               -->
+        <!-- En PC: Siempre visible. En Móvil: Solo si tab === 'stats'       -->
+        <!-- =============================================================== -->
+        <section class="flex-col p-6 bg-slate-950 relative overflow-hidden lg:flex lg:flex-[0.6] lg:border-l lg:border-slate-800"
+                 :class="mobileTab === 'stats' ? 'flex flex-1' : 'hidden'"
+                 id="capture-area">
             
-            <!-- NAV SUPERIOR -->
+            <!-- NAV SUPERIOR (Compartido) -->
+            <!-- En móvil permite scroll horizontal para acceder a todo -->
             <div class="flex gap-4 mb-6 shrink-0 border-b border-slate-800 pb-4 overflow-x-auto scrollbar-hide justify-between">
                 <div class="flex gap-4">
                     <button @click="switchView('stats')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'stats' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
@@ -276,6 +367,7 @@
                 </div>
             </div>
 
+            <!-- CONTENIDO DE ESTADÍSTICAS (COPIA EXACTA DE TU ARCHIVO) -->
             <!-- VISTA 1: PROGRESO MENSUAL -->
             <div x-show="viewMode === 'stats'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 scrollbar-hide pb-20">
                 <div id="stats-scroll-container" class="flex gap-2 mb-6 overflow-x-auto pb-2 shrink-0 scrollbar-hide transition-all">
@@ -376,226 +468,132 @@
                 </div>
             </div>
 
-            <!-- VISTA 4: MANUAL APP -->
+            <!-- VISTA 4: MANUAL APP (COPIA EXACTA DE TU ARCHIVO) -->
             <div x-show="viewMode === 'manual'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
-                
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-cyan-900/40 to-slate-900 border-cyan-500/20">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
-                            <i class="ph-fill ph-info text-2xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white">Manual de Usuario</h2>
-                            <p class="text-sm text-slate-400">Cómo funciona TriHabit y dónde están tus datos.</p>
-                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0"><i class="ph-fill ph-info text-2xl"></i></div>
+                        <div><h2 class="text-xl font-bold text-white">Manual de Usuario</h2><p class="text-sm text-slate-400">Cómo funciona TriHabit y dónde están tus datos.</p></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    
-                    <!-- Tarjeta Privacidad -->
                     <div class="glass-panel p-5 border-l-4 border-emerald-500">
-                        <div class="flex items-center gap-2 mb-3 text-emerald-400">
-                            <i class="ph-fill ph-shield-check text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                            Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.
-                        </p>
-                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono">
-                            <i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!
-                        </div>
+                        <div class="flex items-center gap-2 mb-3 text-emerald-400"><i class="ph-fill ph-shield-check text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3></div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!</div>
                     </div>
-
-                    <!-- Tarjeta Configuración -->
                     <div class="glass-panel p-5 border-l-4 border-indigo-500">
-                        <div class="flex items-center gap-2 mb-3 text-indigo-400">
-                            <i class="ph-fill ph-sliders text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Configuración</h3>
-                        </div>
+                        <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-sliders text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Configuración</h3></div>
                         <ul class="space-y-2 text-xs text-slate-300">
                             <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
                             <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
                             <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio el hábito (L, M, X...).</li>
                         </ul>
                     </div>
-
-                    <!-- Tarjeta Flujo Diario -->
                     <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
-                        <div class="flex items-center gap-2 mb-4 text-purple-400">
-                            <i class="ph-fill ph-path text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3>
-                        </div>
+                        <div class="flex items-center gap-2 mb-4 text-purple-400"><i class="ph-fill ph-path text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3></div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4>
-                                <p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p>
-                            </div>
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4>
-                                <p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p>
-                            </div>
-                            <div class="manual-step">
-                                <h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4>
-                                <p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p>
-                            </div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4><p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4><p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4><p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p></div>
                         </div>
                     </div>
-
-                    <!-- Tarjeta Backup -->
                     <div class="glass-panel p-5 border-l-4 border-cyan-500">
-                        <div class="flex items-center gap-2 mb-3 text-cyan-400">
-                            <i class="ph-fill ph-floppy-disk text-xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3>
-                        </div>
-                        <p class="text-xs text-slate-300 mb-3">
-                            Para pasar tus datos al móvil o a otro ordenador:
-                        </p>
+                        <div class="flex items-center gap-2 mb-3 text-cyan-400"><i class="ph-fill ph-floppy-disk text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3></div>
+                        <p class="text-xs text-slate-300 mb-3">Para pasar tus datos al móvil o a otro ordenador:</p>
                         <div class="flex gap-2">
                             <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Exportar (Descarga .json)</button>
                             <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Enviar archivo</button>
                             <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">3. Importar</button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <!-- VISTA 5: ESTRATEGIAS -->
+            <!-- VISTA 5: ESTRATEGIAS (COPIA EXACTA DE TU ARCHIVO) -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
-                
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                            <i class="ph-fill ph-lightbulb text-2xl animate-pulse-slow"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white mb-2">Estrategias Mentales</h2>
-                            <p class="text-sm text-slate-400 leading-relaxed">
-                                Estrategias mentales para hackear tu cerebro y lograr consistencia absoluta.
-                            </p>
-                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0"><i class="ph-fill ph-lightbulb text-2xl animate-pulse-slow"></i></div>
+                        <div><h2 class="text-xl font-bold text-white mb-2">Estrategias Mentales</h2><p class="text-sm text-slate-400 leading-relaxed">Estrategias mentales para hackear tu cerebro y lograr consistencia absoluta.</p></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    
-                    <!-- Tarjeta 1: Empezar Ridículo -->
                     <div class="glass-panel p-5 guide-card" style="--card-color: #60a5fa">
-                        <div class="flex items-center gap-3 mb-3 text-blue-400">
-                            <i class="ph-fill ph-baby text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">La Regla del 1%</h3>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-blue-400"><i class="ph-fill ph-baby text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">La Regla del 1%</h3></div>
                         <p class="text-xs text-slate-400 mb-3 font-medium">Empieza tan pequeño que sea imposible decir que no.</p>
                         <div class="bg-slate-900/50 rounded-lg p-3 border border-white/5 space-y-2 text-xs">
-                            <div class="flex items-center gap-2 text-slate-500 line-through decoration-red-500/50">
-                                <i class="ph-bold ph-x text-red-500"></i> "Caminar 1 hora"
-                            </div>
-                            <div class="flex items-center gap-2 text-emerald-400 font-bold">
-                                <i class="ph-bold ph-check"></i> "Caminar 5 minutos"
-                            </div>
+                            <div class="flex items-center gap-2 text-slate-500 line-through decoration-red-500/50"><i class="ph-bold ph-x text-red-500"></i> "Caminar 1 hora"</div>
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold"><i class="ph-bold ph-check"></i> "Caminar 5 minutos"</div>
                         </div>
                     </div>
-
-                    <!-- Tarjeta 2: Habit Stacking -->
                     <div class="glass-panel p-5 guide-card" style="--card-color: #c084fc">
-                        <div class="flex items-center gap-3 mb-3 text-purple-400">
-                            <i class="ph-fill ph-stack text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Apilado de Hábitos</h3>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-purple-400"><i class="ph-fill ph-stack text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Apilado de Hábitos</h3></div>
                         <p class="text-xs text-slate-400 mb-3 font-medium">Usa una rutina vieja para disparar una nueva.</p>
                         <div class="text-center p-2 bg-slate-800/50 rounded-lg border border-purple-500/20">
-                            <span class="text-slate-400 text-xs">Después de</span>
-                            <span class="text-white font-bold text-xs bg-slate-700 px-1 rounded mx-1">[Hábito Actual]</span>
+                            <span class="text-slate-400 text-xs">Después de</span><span class="text-white font-bold text-xs bg-slate-700 px-1 rounded mx-1">[Hábito Actual]</span>
                             <div class="my-1 text-purple-400"><i class="ph-bold ph-arrow-down"></i></div>
-                            <span class="text-slate-400 text-xs">Haré</span>
-                            <span class="text-purple-300 font-bold text-xs bg-purple-900/30 px-1 rounded mx-1">[Nuevo Hábito]</span>
+                            <span class="text-slate-400 text-xs">Haré</span><span class="text-purple-300 font-bold text-xs bg-purple-900/30 px-1 rounded mx-1">[Nuevo Hábito]</span>
                         </div>
                     </div>
-
-                    <!-- Tarjeta 3: Entorno -->
                     <div class="glass-panel p-5 guide-card" style="--card-color: #facc15">
-                        <div class="flex items-center gap-3 mb-3 text-yellow-400">
-                            <i class="ph-fill ph-house-line text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Arquitectura</h3>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-yellow-400"><i class="ph-fill ph-house-line text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Arquitectura</h3></div>
                         <p class="text-xs text-slate-400 mb-2">El entorno gana a la motivación.</p>
-                        <ul class="space-y-1">
-                            <li class="tip-bullet">Zapatillas en la puerta.</li>
-                            <li class="tip-bullet">Botella de agua llena en la mesa.</li>
-                            <li class="tip-bullet">App abierta en primera pantalla.</li>
-                        </ul>
+                        <ul class="space-y-1"><li class="tip-bullet">Zapatillas en la puerta.</li><li class="tip-bullet">Botella de agua llena en la mesa.</li><li class="tip-bullet">App abierta en primera pantalla.</li></ul>
                     </div>
-
-                    <!-- Tarjeta 4: Identidad -->
                     <div class="glass-panel p-5 guide-card" style="--card-color: #f472b6">
-                        <div class="flex items-center gap-3 mb-3 text-pink-400">
-                            <i class="ph-fill ph-fingerprint text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Identidad</h3>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-pink-400"><i class="ph-fill ph-fingerprint text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Identidad</h3></div>
                         <p class="text-xs text-slate-400 mb-3">No digas lo que haces, di quién eres.</p>
-                        <div class="bg-gradient-to-r from-pink-500/10 to-transparent p-3 rounded-l-xl border-l-2 border-pink-500">
-                            <p class="text-xs italic text-pink-200">"No estoy intentando correr..."</p>
-                            <p class="text-sm font-bold text-white mt-1">"Soy un corredor"</p>
-                        </div>
+                        <div class="bg-gradient-to-r from-pink-500/10 to-transparent p-3 rounded-l-xl border-l-2 border-pink-500"><p class="text-xs italic text-pink-200">"No estoy intentando correr..."</p><p class="text-sm font-bold text-white mt-1">"Soy un corredor"</p></div>
                     </div>
-
-                    <!-- Tarjeta 5: Never Miss Twice -->
                     <div class="glass-panel p-5 guide-card border-red-500/20" style="--card-color: #f87171">
-                        <div class="flex items-center gap-3 mb-3 text-red-400">
-                            <i class="ph-fill ph-warning-octagon text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Regla de Oro</h3>
-                        </div>
-                        <div class="text-center py-2">
-                            <p class="text-2xl font-black text-white leading-none">NUNCA</p>
-                            <p class="text-sm text-red-400 font-bold uppercase tracking-widest">DOS VECES</p>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-red-400"><i class="ph-fill ph-warning-octagon text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Regla de Oro</h3></div>
+                        <div class="text-center py-2"><p class="text-2xl font-black text-white leading-none">NUNCA</p><p class="text-sm text-red-400 font-bold uppercase tracking-widest">DOS VECES</p></div>
                         <p class="text-[11px] text-slate-400 text-center mt-2">Fallar un día es un accidente. Fallar dos es el inicio de un nuevo (mal) hábito.</p>
                     </div>
-
-                    <!-- Tarjeta 6: Recompensa -->
                     <div class="glass-panel p-5 guide-card" style="--card-color: #4ade80">
-                        <div class="flex items-center gap-3 mb-3 text-green-400">
-                            <i class="ph-fill ph-gift text-2xl"></i>
-                            <h3 class="font-bold text-white text-sm uppercase tracking-wide">Placer Inmediato</h3>
-                        </div>
+                        <div class="flex items-center gap-3 mb-3 text-green-400"><i class="ph-fill ph-gift text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Placer Inmediato</h3></div>
                         <p class="text-xs text-slate-400 mb-2">El cerebro repite lo que se siente bien AHORA.</p>
-                        <ul class="space-y-1">
-                            <li class="tip-bullet">Solo escucho mi podcast favorito al entrenar.</li>
-                            <li class="tip-bullet">Marco el check verde (¡dopamina!).</li>
-                        </ul>
+                        <ul class="space-y-1"><li class="tip-bullet">Solo escucho mi podcast favorito al entrenar.</li><li class="tip-bullet">Marco el check verde (¡dopamina!).</li></ul>
                     </div>
-
-                    <!-- Tarjeta 7: Sistemas -->
                     <div class="glass-panel p-5 guide-card md:col-span-2 lg:col-span-3 bg-slate-800/30" style="--card-color: #94a3b8">
                         <div class="flex flex-col md:flex-row gap-4 items-center">
                             <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2 text-indigo-300">
-                                    <i class="ph-fill ph-gear text-2xl animate-spin-fast" style="animation-duration: 3s"></i>
-                                    <h3 class="font-bold text-white text-sm uppercase tracking-wide">Sistemas > Motivación</h3>
-                                </div>
-                                <p class="text-xs text-slate-300">
-                                    La motivación es una emoción, sube y baja. Los sistemas son lógicos. Crea un plan B: <span class="text-white font-bold">"Si no puedo ir al gym 1h, haré 10 flexiones en casa".</span> Reduce la fricción para los buenos hábitos y auméntala para los malos.
-                                </p>
+                                <div class="flex items-center gap-3 mb-2 text-indigo-300"><i class="ph-fill ph-gear text-2xl animate-spin-fast" style="animation-duration: 3s"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Sistemas > Motivación</h3></div>
+                                <p class="text-xs text-slate-300">La motivación es una emoción, sube y baja. Los sistemas son lógicos. Crea un plan B: <span class="text-white font-bold">"Si no puedo ir al gym 1h, haré 10 flexiones en casa".</span> Reduce la fricción para los buenos hábitos y auméntala para los malos.</p>
                             </div>
-                            <div class="flex gap-2 text-[10px] font-mono text-slate-500 uppercase tracking-widest border-l border-slate-700 pl-4">
-                                <div class="text-center">
-                                    <div class="text-xl font-bold text-white">X</div>
-                                    <div>Meta Perfecta</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-xl font-bold text-emerald-400">✓</div>
-                                    <div>Mínimo Diario</div>
-                                </div>
-                            </div>
+                            <div class="flex gap-2 text-[10px] font-mono text-slate-500 uppercase tracking-widest border-l border-slate-700 pl-4"><div class="text-center"><div class="text-xl font-bold text-white">X</div><div>Meta Perfecta</div></div><div class="text-center"><div class="text-xl font-bold text-emerald-400">✓</div><div>Mínimo Diario</div></div></div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
         </section>
     </main>
+
+    <!-- NAVEGACIÓN INFERIOR (Solo Móvil) -->
+    <nav class="lg:hidden mobile-nav fixed bottom-0 w-full h-[60px] z-50 grid grid-cols-3 items-center px-2">
+        <button @click="mobileTab = 'today'" class="flex flex-col items-center justify-center gap-1 h-full relative" 
+                :class="mobileTab === 'today' ? 'text-indigo-400' : 'text-slate-500'">
+            <i class="text-2xl" :class="mobileTab === 'today' ? 'ph-fill ph-check-square' : 'ph-bold ph-check-square'"></i>
+            <span class="text-[10px] font-medium">Hoy</span>
+            <div x-show="mobileTab === 'today'" class="absolute top-0 w-8 h-1 bg-indigo-500 rounded-b-full shadow-[0_0_10px_#6366f1]"></div>
+        </button>
+        
+        <button @click="mobileTab = 'calendar'" class="flex flex-col items-center justify-center gap-1 h-full relative" 
+                :class="mobileTab === 'calendar' ? 'text-indigo-400' : 'text-slate-500'">
+            <i class="text-2xl" :class="mobileTab === 'calendar' ? 'ph-fill ph-calendar-blank' : 'ph-bold ph-calendar-blank'"></i>
+            <span class="text-[10px] font-medium">Mes</span>
+            <div x-show="mobileTab === 'calendar'" class="absolute top-0 w-8 h-1 bg-indigo-500 rounded-b-full shadow-[0_0_10px_#6366f1]"></div>
+        </button>
+        
+        <button @click="mobileTab = 'stats'; if(viewMode==='manual'||viewMode==='guide') viewMode='stats'" class="flex flex-col items-center justify-center gap-1 h-full relative" 
+                :class="mobileTab === 'stats' ? 'text-indigo-400' : 'text-slate-500'">
+            <i class="text-2xl" :class="mobileTab === 'stats' ? 'ph-fill ph-chart-bar' : 'ph-bold ph-chart-bar'"></i>
+            <span class="text-[10px] font-medium">Progreso</span>
+            <div x-show="mobileTab === 'stats'" class="absolute top-0 w-8 h-1 bg-indigo-500 rounded-b-full shadow-[0_0_10px_#6366f1]"></div>
+        </button>
+    </nav>
 
     <!-- MODAL DE CONFIGURACIÓN -->
     <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-md px-4" style="display:none" x-transition.opacity>
@@ -684,6 +682,7 @@
                 showSettings: false,
                 savedMsg: false,
                 viewMode: 'stats',
+                mobileTab: 'today', // Estado nuevo para móvil
                 refreshing: false,
                 charts: {}, 
                 chartsYear: {},
@@ -698,6 +697,7 @@
                 get month() { return this.currentDate.getMonth(); },
                 get year() { return this.currentDate.getFullYear(); },
                 get monthName() { return this.currentDate.toLocaleString('es-ES', { month: 'long' }); },
+                get isMobile() { return window.innerWidth < 1024; },
 
                 initApp() {
                     const cfg = localStorage.getItem('trihabit_config_v17');
@@ -719,6 +719,8 @@
                     if (nts) this.notes = JSON.parse(nts);
 
                     this.gotoToday();
+                    // Detectar si estamos en móvil para iniciar en la tab correcta
+                    if(this.isMobile) this.mobileTab = 'today';
                     this.$nextTick(() => { setTimeout(() => this.initChart(), 300); });
                 },
                 
@@ -749,9 +751,23 @@
                 updateDayNote(day, text) { const key = this.getKey(day); this.notes[key] = text; this.saveData(); },
                 hasNote(day) { const key = this.getKey(day); return this.notes[key] && this.notes[key].trim().length > 0; },
 
-                gotoToday() { this.currentDate = new Date(); this.selectedDay = this.currentDate.getDate(); },
+                gotoToday() { 
+                    this.currentDate = new Date(); 
+                    this.selectedDay = this.currentDate.getDate(); 
+                    if(this.isMobile) this.mobileTab = 'today';
+                },
                 changeMonth(val) { this.currentDate = new Date(this.year, this.month + val, 1); this.selectedDay = null; this.forceRedraw(); },
                 selectDay(day) { this.selectedDay = day; },
+                
+                // Nueva función para navegar días en móvil (Pestaña Hoy)
+                changeDayOffset(offset) {
+                    const current = new Date(this.year, this.month, this.selectedDay);
+                    current.setDate(current.getDate() + offset);
+                    this.currentDate = current;
+                    this.selectedDay = current.getDate();
+                    this.forceRedraw(); // Necesario por si cambia el mes
+                },
+
                 isToday(day) { const t = new Date(); return day === t.getDate() && this.month === t.getMonth() && this.year === t.getFullYear(); },
                 
                 getDayClass(day) {
@@ -794,9 +810,12 @@
                     this.logs[key][idx] = parsedVal;
                     this.logs = { ...this.logs }; 
                     this.saveData();
-                    if (this.viewMode === 'stats' && this.charts[idx]) {
-                         this.charts[idx].data.datasets[0].data[this.selectedDay - 1] = parsedVal;
-                         this.charts[idx].update('none');
+                    if (this.viewMode === 'stats' && this.charts[idx] && this.charts[idx].data.datasets[0].data) {
+                         // Actualización segura de chart
+                         if(this.charts[idx].data.datasets[0].data[this.selectedDay - 1] !== undefined) {
+                            this.charts[idx].data.datasets[0].data[this.selectedDay - 1] = parsedVal;
+                            this.charts[idx].update('none');
+                         }
                     }
                     if (this.viewMode === 'year') this.forceRedraw(); 
                 },
@@ -878,7 +897,6 @@
                 },
 
                 destroyCharts() {
-                    // Importante: Destruir instancias previas para evitar "glitches" visuales
                     if (this.charts) {
                         Object.values(this.charts).forEach(c => {
                             if(typeof c.destroy === 'function') c.destroy();
@@ -940,6 +958,7 @@
                         if (intensity > 1) bg = '#22c55e';
                         
                         cell.style.backgroundColor = bg;
+                        // Tooltip simple para desktop, en móvil no afecta
                         cell.title = `${currentDate.toLocaleDateString()}: ${Math.round(intensity*100)}%`;
                         container.appendChild(cell);
                         currentDate.setDate(currentDate.getDate() + 1);
@@ -1000,7 +1019,7 @@
                 },
 
                 exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '19.5' };
+                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '21.6' };
                     const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
@@ -1061,7 +1080,6 @@
                         if (!h.active) return;
                         const ctx = document.getElementById('chart-month-' + index);
                         if (!ctx) return;
-                        // Charts ya destruidos en forceRedraw
                         const days = Array.from({length: this.daysInMonth}, (_, i) => i + 1);
                         const vals = days.map(d => this.getVal(d, index));
 
@@ -1097,7 +1115,6 @@
                         const data = new Array(12).fill(0);
                         Object.keys(this.logs).forEach(k => { if(k.startsWith(this.year)) data[parseInt(k.split('-')[1])-1] += (this.logs[k][index]||0); });
                         
-                        // Guardamos la referencia en this.chartsYear (solución al bug)
                         this.chartsYear[index] = new Chart(ctx, {
                             type: 'bar',
                             data: { labels: months, datasets: [{ data: data, backgroundColor: h.color, borderRadius: 3 }] },
