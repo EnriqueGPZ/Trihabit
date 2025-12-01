@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHabit v20 - Master Edition</title>
+    <title>TriHabit v21 - Ultimate Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -80,6 +80,10 @@
         .guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
         .tip-bullet { @apply relative pl-4 text-slate-300 text-sm leading-relaxed; }
         .tip-bullet::before { content: '•'; position: absolute; left: 0; color: var(--card-color, #6366f1); font-weight: bold; }
+        
+        .manual-step { position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .manual-step:last-child { margin-bottom: 0; }
+        .manual-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #6366f1; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white" x-data="app()" x-init="initApp()" x-cloak>
@@ -90,7 +94,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v20</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v21</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -228,25 +232,28 @@
             <!-- NAV SUPERIOR -->
             <div class="flex gap-4 mb-6 shrink-0 border-b border-slate-800 pb-4 overflow-x-auto scrollbar-hide justify-between">
                 <div class="flex gap-4">
-                    <button @click="viewMode = 'stats'; forceRedraw()" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'stats' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
+                    <button @click="switchView('stats')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'stats' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
                         <i class="ph-bold ph-chart-line-up"></i> Progreso Mes
                     </button>
-                    <button @click="viewMode = 'year'; forceRedraw()" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'year' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
+                    <button @click="switchView('year')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'year' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
                         <i class="ph-bold ph-calendar-blank"></i> Resumen Anual
                     </button>
-                    <button @click="viewMode = 'insights'" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
+                    <button @click="switchView('insights')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
                         <i class="ph-bold ph-trophy"></i> Logros
                     </button>
-                    <button @click="viewMode = 'guide'" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'guide' ? 'text-emerald-400 border-emerald-500' : 'text-slate-500 border-transparent hover:text-emerald-300'">
+                    <button @click="switchView('manual')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'manual' ? 'text-cyan-400 border-cyan-500' : 'text-slate-500 border-transparent hover:text-cyan-300'">
+                        <i class="ph-bold ph-info"></i> Manual
+                    </button>
+                    <button @click="switchView('guide')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'guide' ? 'text-emerald-400 border-emerald-500' : 'text-slate-500 border-transparent hover:text-emerald-300'">
                         <i class="ph-bold ph-book-open"></i> Guía Maestra
                     </button>
                 </div>
                 
                 <div class="flex gap-2">
-                    <button x-show="viewMode !== 'guide'" @click="refreshCharts()" aria-label="Recargar Gráficas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition group">
+                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="refreshCharts()" aria-label="Recargar Gráficas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition group">
                         <i class="ph-bold ph-arrow-clockwise group-hover:rotate-180 transition-transform duration-500" :class="refreshing ? 'animate-spin-fast' : ''"></i>
                     </button>
-                    <button x-show="viewMode !== 'guide'" @click="shareStats()" aria-label="Compartir Estadísticas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 flex items-center justify-center text-slate-400 hover:text-white transition">
+                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="shareStats()" aria-label="Compartir Estadísticas" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 flex items-center justify-center text-slate-400 hover:text-white transition">
                         <i class="ph-bold ph-camera"></i>
                     </button>
                 </div>
@@ -352,18 +359,103 @@
                 </div>
             </div>
 
-            <!-- VISTA 4: GUÍA MAESTRA (NUEVA) -->
+            <!-- VISTA 4: MANUAL APP (NUEVA) -->
+            <div x-show="viewMode === 'manual'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
+                
+                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-cyan-900/40 to-slate-900 border-cyan-500/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
+                            <i class="ph-fill ph-info text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Manual de Usuario</h2>
+                            <p class="text-sm text-slate-400">Cómo funciona TriHabit y dónde están tus datos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    
+                    <!-- Tarjeta Privacidad -->
+                    <div class="glass-panel p-5 border-l-4 border-emerald-500">
+                        <div class="flex items-center gap-2 mb-3 text-emerald-400">
+                            <i class="ph-fill ph-shield-check text-xl"></i>
+                            <h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.
+                        </p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono">
+                            <i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Configuración -->
+                    <div class="glass-panel p-5 border-l-4 border-indigo-500">
+                        <div class="flex items-center gap-2 mb-3 text-indigo-400">
+                            <i class="ph-fill ph-sliders text-xl"></i>
+                            <h3 class="font-bold text-white text-sm uppercase">Configuración</h3>
+                        </div>
+                        <ul class="space-y-2 text-xs text-slate-300">
+                            <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
+                            <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
+                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio el hábito (L, M, X...).</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tarjeta Flujo Diario -->
+                    <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
+                        <div class="flex items-center gap-2 mb-4 text-purple-400">
+                            <i class="ph-fill ph-path text-xl"></i>
+                            <h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="manual-step">
+                                <h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4>
+                                <p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p>
+                            </div>
+                            <div class="manual-step">
+                                <h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4>
+                                <p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p>
+                            </div>
+                            <div class="manual-step">
+                                <h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4>
+                                <p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Backup -->
+                    <div class="glass-panel p-5 border-l-4 border-cyan-500">
+                        <div class="flex items-center gap-2 mb-3 text-cyan-400">
+                            <i class="ph-fill ph-floppy-disk text-xl"></i>
+                            <h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-3">
+                            Para pasar tus datos al móvil o a otro ordenador:
+                        </p>
+                        <div class="flex gap-2">
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Exportar (Descarga .json)</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Enviar archivo</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">3. Importar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- VISTA 5: GUÍA MAESTRA (MOTIVACIÓN) -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
                 
-                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-indigo-900/40 to-slate-900 border-indigo-500/20">
+                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
                             <i class="ph-fill ph-lightbulb text-2xl animate-pulse-slow"></i>
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-white mb-2">Maestría del Hábito</h2>
                             <p class="text-sm text-slate-400 leading-relaxed">
-                                Crear hábitos no va de fuerza de voluntad, va de estrategia. Aquí tienes las leyes fundamentales para hackear tu cerebro y lograr consistencia, destiladas de los mejores métodos.
+                                Estrategias mentales para hackear tu cerebro y lograr consistencia absoluta.
                             </p>
                         </div>
                     </div>
@@ -483,10 +575,6 @@
                     </div>
 
                 </div>
-                
-                <div class="mt-8 text-center text-slate-500 text-xs italic opacity-60">
-                    Basado en principios de "Atomic Habits" (J. Clear) y "Tiny Habits" (BJ Fogg).
-                </div>
             </div>
 
         </section>
@@ -573,7 +661,6 @@
                 habits: [],
                 logs: {},
                 notes: {},
-                historicalBest: {},
                 tempHabits: [],
                 currentDate: new Date(),
                 selectedDay: null,
@@ -615,7 +702,6 @@
                     if (nts) this.notes = JSON.parse(nts);
 
                     this.gotoToday();
-                    this.calculateAllHistoricalBests();
                     this.$nextTick(() => { setTimeout(() => this.initChart(), 300); });
                 },
                 
@@ -763,20 +849,45 @@
                     this.forceRedraw();
                 },
 
+                switchView(mode) {
+                    this.viewMode = mode;
+                    this.forceRedraw();
+                },
+
                 refreshCharts() {
                     this.refreshing = true;
                     this.forceRedraw();
                     setTimeout(() => { this.refreshing = false; }, 500);
                 },
 
-                forceRedraw() {
-                    if (this.viewMode === 'stats') {
-                        this.chartsYear = {}; 
-                        this.$nextTick(() => { this.initChart(); });
-                    } else if (this.viewMode === 'year') {
-                        this.charts = {};
-                        this.$nextTick(() => { this.initYearChart(); this.renderHeatmap(); });
+                destroyCharts() {
+                    // Importante: Destruir instancias previas para evitar "glitches" visuales
+                    if (this.charts) {
+                        Object.values(this.charts).forEach(c => {
+                            if(typeof c.destroy === 'function') c.destroy();
+                        });
                     }
+                    this.charts = {};
+
+                    if (this.chartsYear) {
+                        Object.values(this.chartsYear).forEach(c => {
+                            if(typeof c.destroy === 'function') c.destroy();
+                        });
+                    }
+                    this.chartsYear = {};
+                },
+
+                forceRedraw() {
+                    this.destroyCharts();
+                    
+                    this.$nextTick(() => {
+                        if (this.viewMode === 'stats') {
+                            this.initChart();
+                        } else if (this.viewMode === 'year') {
+                            this.initYearChart(); 
+                            this.renderHeatmap();
+                        }
+                    });
                 },
 
                 renderHeatmap() {
@@ -901,8 +1012,6 @@
                     return Object.keys(this.logs).filter(k => k.startsWith(prefix)).reduce((acc, k) => acc + (this.logs[k][idx] || 0), 0);
                 },
 
-                calculateAllHistoricalBests() { this.habits.forEach((h, idx) => { this.historicalBest[idx] = 0; }); },
-
                 getCompletionRate(idx) {
                     const habit = this.habits[idx];
                     let potential = 0; let actual = 0;
@@ -935,8 +1044,7 @@
                         if (!h.active) return;
                         const ctx = document.getElementById('chart-month-' + index);
                         if (!ctx) return;
-                        if (this.charts[index]) this.charts[index].destroy();
-
+                        // Charts ya destruidos en forceRedraw
                         const days = Array.from({length: this.daysInMonth}, (_, i) => i + 1);
                         const vals = days.map(d => this.getVal(d, index));
 
@@ -971,7 +1079,9 @@
                         if (!ctx) return;
                         const data = new Array(12).fill(0);
                         Object.keys(this.logs).forEach(k => { if(k.startsWith(this.year)) data[parseInt(k.split('-')[1])-1] += (this.logs[k][index]||0); });
-                        new Chart(ctx, {
+                        
+                        // Guardamos la referencia en this.chartsYear (solución al bug)
+                        this.chartsYear[index] = new Chart(ctx, {
                             type: 'bar',
                             data: { labels: months, datasets: [{ data: data, backgroundColor: h.color, borderRadius: 3 }] },
                             options: {
