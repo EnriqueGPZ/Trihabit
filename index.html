@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHabit v21.5 - Stratagem Edition</title>
+    <title>TriHabit v21.6 - Polished Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -74,14 +74,29 @@
         .drag-ghost { opacity: 0.5; background: #1e293b; }
         .drag-chosen { box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
 
-        /* Estilos Guia & Estrategias - MEJORADO */
+        /* Estilos Guia & Estrategias */
         .guide-card { transition: all 0.3s ease; position: relative; overflow: hidden; }
         .guide-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3); border-color: rgba(99, 102, 241, 0.3); }
         .guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
         
-        /* CORRECCIÓN DE MÁRGENES PARA LOS PUNTOS */
-        .tip-bullet { @apply relative pl-6 ml-2 text-slate-300 text-sm leading-relaxed; }
-        .tip-bullet::before { content: '•'; position: absolute; left: 0; color: var(--card-color, #6366f1); font-weight: bold; font-size: 1.2em; top: -1px; }
+        /* CORRECCIÓN: Usando CSS estándar en lugar de @apply para asegurar el posicionamiento correcto */
+        .tip-bullet { 
+            position: relative; 
+            padding-left: 1.5rem; /* pl-6 */
+            margin-left: 0.5rem; /* ml-2 */
+            color: #cbd5e1; /* text-slate-300 */
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.625; /* leading-relaxed */
+        }
+        .tip-bullet::before { 
+            content: '•'; 
+            position: absolute; 
+            left: 0; 
+            color: var(--card-color, #6366f1); 
+            font-weight: bold; 
+            font-size: 1.2em; 
+            top: -1px; 
+        }
         
         .manual-step { position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
         .manual-step:last-child { margin-bottom: 0; }
@@ -96,7 +111,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v21.5</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v21.6</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -446,7 +461,7 @@
                 </div>
             </div>
 
-            <!-- VISTA 5: ESTRATEGIAS (Renombrado y Mejorado) -->
+            <!-- VISTA 5: ESTRATEGIAS -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col h-full min-h-0 overflow-y-auto pr-2 custom-scrollbar pb-20">
                 
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
