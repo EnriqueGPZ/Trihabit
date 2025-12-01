@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHabit Cloud v19.5</title>
+    <title>TriHabit Cloud v19.6 - Guía Pro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -135,14 +135,21 @@
                     <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300 font-normal border border-indigo-500/30">CLOUD</span></h1>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="text-xs text-slate-400 hidden md:flex items-center gap-2">
+            <div class="flex items-center gap-3">
+                <!-- Botón AYUDA Nuevo -->
+                <button @click="showHelp = true" class="w-8 h-8 rounded-full bg-slate-800/50 hover:bg-indigo-500/20 text-indigo-300 flex items-center justify-center transition-all border border-indigo-500/20 hover:border-indigo-500" title="Guía de uso">
+                    <i class="ph-bold ph-question"></i>
+                </button>
+
+                <div class="text-xs text-slate-400 hidden md:flex items-center gap-2 px-2 border-l border-slate-800 ml-1">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
                     <span x-text="user?.email"></span>
                 </div>
+                
                 <div x-show="savedMsg" x-transition.opacity.duration.500ms class="flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-900/30 px-3 py-1 rounded-full border border-emerald-500/20">
                     <i class="ph-bold ph-cloud-check"></i>
                 </div>
+                
                 <button @click="openSettings()" aria-label="Abrir configuración" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
                     <i class="ph ph-gear text-xl"></i>
                 </button>
@@ -398,6 +405,54 @@
             </section>
         </main>
 
+        <!-- MODAL DE AYUDA (NUEVO) -->
+        <div x-show="showHelp" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-md px-4" style="display:none" x-transition.opacity>
+            <div class="glass-panel p-6 w-full max-w-2xl shadow-2xl bg-slate-900 border border-slate-700 relative" @click.away="showHelp = false">
+                <button @click="showHelp = false" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+                
+                <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2"><i class="ph-duotone ph-rocket text-indigo-500"></i> Domina tu TriHabit</h2>
+                <p class="text-slate-400 text-sm mb-6">Descubre todo lo que esta versión Cloud puede hacer por ti.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <div class="flex items-center gap-3 mb-2 text-indigo-300 font-bold">
+                            <i class="ph-fill ph-cloud-check text-xl"></i> Sincronización Total
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">Tus datos viven seguros en la nube. Inicia sesión en tu móvil, tablet u ordenador y continúa tu racha sin perder nada.</p>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <div class="flex items-center gap-3 mb-2 text-emerald-300 font-bold">
+                            <i class="ph-fill ph-sliders-horizontal text-xl"></i> Flexibilidad Pro
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Ve a <i class="ph-bold ph-gear inline"></i> para arrastrar y reordenar hábitos. Elige días específicos (ej: Solo Lunes y Miércoles) y marca "Extras" si cumples fuera de fecha.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <div class="flex items-center gap-3 mb-2 text-yellow-300 font-bold">
+                            <i class="ph-fill ph-notebook text-xl"></i> Diario de Progreso
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">Al hacer clic en un día, usa el área de texto abajo para anotar tus reflexiones. Un punto amarillo marcará los días con notas.</p>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <div class="flex items-center gap-3 mb-2 text-pink-300 font-bold">
+                            <i class="ph-fill ph-chart-polar text-xl"></i> Análisis Visual
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Explora el "Resumen Anual" para ver tu <b>Heatmap</b> de consistencia. Usa el botón <i class="ph-bold ph-camera inline"></i> para compartir una captura de tus logros.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button @click="showHelp = false" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition">¡Entendido, a darle caña!</button>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL DE CONFIGURACIÓN -->
         <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-md px-4" style="display:none" x-transition.opacity>
             <div class="glass-panel p-6 w-full max-w-lg shadow-2xl bg-slate-900 border border-slate-700 max-h-[90vh] flex flex-col" @click.away="closeSettings()"
@@ -498,6 +553,7 @@
                 currentDate: new Date(),
                 selectedDay: null,
                 showSettings: false,
+                showHelp: false, // NUEVO ESTADO PARA AYUDA
                 savedMsg: false,
                 viewMode: 'stats',
                 refreshing: false,
@@ -592,7 +648,7 @@
                         habits: this.habits, 
                         logs: this.logs, 
                         notes: this.notes, 
-                        version: '19.5' 
+                        version: '19.6' 
                     };
 
                     const { error } = await supabase
@@ -853,7 +909,7 @@
                 },
 
                 exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '19.5' };
+                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '19.6' };
                     const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
