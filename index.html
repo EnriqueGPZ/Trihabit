@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.2 - Clean Cloud</title>
+    <title>TriHabit v3.3 - Cloud Edition</title>
     
+    <!-- Hoja de Estilos Propia -->
+    <link rel="stylesheet" href="style.css">
+
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -12,18 +15,12 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // --- CONFIGURACIÓN SUPABASE ---
-        const SUPABASE_URL = 'https://accwhbzrdwvlofxcdvix.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjY3doYnpyZHd2bG9meGNkdml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2NzMyODcsImV4cCI6MjA4MDI0OTI4N30.BFXlKhOf5r0JFp8sjoPZ6LbeDqyrdYO7KrXKjE2pY7o';
-        
-        // Usamos 'sb' para evitar conflictos de nombres
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         tailwind.config = {
             theme: {
                 extend: {
@@ -38,42 +35,8 @@
             }
         }
     </script>
-
-    <style>
-        body { background-color: #020617; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; height: 100dvh; width: 100%; position: fixed; overflow: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
-        .mobile-nav { background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom); }
-        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; margin-top: -6px; box-shadow: 0 0 10px rgba(255,255,255,0.5); transition: transform 0.1s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 2px; }
-        .mobile-slider::-webkit-slider-thumb { height: 28px !important; width: 28px !important; margin-top: -12px !important; box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important; }
-        .mobile-slider::-webkit-slider-runnable-track { height: 4px !important; border-radius: 2px !important; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        [x-cloak] { display: none !important; }
-        .heatmap-grid { display: grid; grid-template-rows: repeat(7, 10px); grid-auto-flow: column; gap: 3px; }
-        .heatmap-labels { display: grid; grid-template-rows: repeat(7, 10px); gap: 3px; margin-right: 6px; }
-        .heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background-color: rgba(255,255,255,0.05); }
-        .chart-shine-container { position: relative; overflow: hidden; }
-        .chart-shine-container::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%); transform: skewX(-20deg); animation: shine-scan 6s infinite ease-in-out; pointer-events: none; z-index: 10; }
-        @keyframes shine-scan { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-        .drag-ghost { opacity: 0.5; background: #1e293b; }
-        .guide-card { transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .guide-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3); border-color: rgba(99, 102, 241, 0.3); }
-        .guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
-        .tip-bullet { position: relative; padding-left: 1.5rem; margin-left: 0.5rem; color: #cbd5e1; font-size: 0.875rem; line-height: 1.625; }
-        .tip-bullet::before { content: '•'; position: absolute; left: 0; color: var(--card-color, #6366f1); font-weight: bold; font-size: 1.2em; top: -1px; }
-        .manual-step { position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .manual-step:last-child { margin-bottom: 0; }
-        .manual-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #6366f1; }
-        .scroll-touch { -webkit-overflow-scrolling: touch; }
-    </style>
 </head>
+
 <body class="bg-[#020617] text-slate-200 flex flex-col overflow-hidden" x-data="app()" x-init="initApp()" x-cloak>
 
     <!-- HEADER -->
@@ -83,25 +46,26 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.2</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.3</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
             <div x-show="savedMsg" x-transition.opacity class="flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-900/30 px-3 py-1 rounded-full border border-emerald-500/20">
                 <i class="ph-bold ph-check"></i> <span class="hidden xs:inline">Guardado</span>
             </div>
-            <!-- Botón Auth / Nube -->
+            <!-- Botón Nube -->
             <button @click="user ? logout() : showAuthModal = true" 
                     class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/10"
                     :class="user ? 'text-emerald-400 bg-emerald-900/20 border border-emerald-500/30' : 'text-slate-400'">
                 <i class="ph-bold" :class="user ? 'ph-user-check' : 'ph-cloud-slash'"></i>
             </button>
-            <button @click="openSettings()" aria-label="Abrir configuración" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
+            <button @click="openSettings()" aria-label="Configurar" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
                 <i class="ph ph-gear text-xl"></i>
             </button>
         </div>
     </header>
 
+    <!-- MAIN APP -->
     <main class="absolute top-16 bottom-0 w-full flex flex-col lg:flex-row overflow-hidden bg-[#020617]">
         
         <!-- COLUMNA IZQUIERDA: CALENDARIO -->
@@ -145,7 +109,6 @@
                 </div>
             </div>
 
-            <!-- TARJETA DE REGISTRO PC -->
             <div x-show="selectedDay" x-transition:enter="transition ease-out duration-300" class="hidden lg:block glass-panel p-6 border-l-4 relative overflow-hidden group mb-6 shrink-0" :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
                  <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
                  <div class="flex justify-between items-center mb-6">
@@ -191,7 +154,7 @@
                         </div>
                     </template>
                     <div class="mt-6 pt-6 border-t border-slate-700/50 pb-4">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día</label>
                         <textarea class="w-full bg-slate-900/50 text-slate-300 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none transition resize-none custom-scrollbar" rows="3" placeholder="Notas..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
                     </div>
                 </div>
@@ -360,7 +323,7 @@
                 </div>
             </div>
 
-            <!-- VISTA 3: LOGROS (Revertido a Original) -->
+            <!-- VISTA 3: LOGROS -->
             <div x-show="viewMode === 'insights'" x-transition.opacity class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">
                 <div class="glass-panel p-5 md:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 shrink-0">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-fire text-orange-500"></i> Rachas Actuales</h3>
@@ -402,43 +365,41 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="glass-panel p-5 border-l-4 border-emerald-500">
                         <div class="flex items-center gap-2 mb-3 text-emerald-400"><i class="ph-fill ph-shield-check text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3></div>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-3">Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.</p>
-                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!</div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">Tus datos <strong>NUNCA</strong> salen de tu dispositivo (salvo que uses la Nube). Se guardan en local.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial, pierdes los datos locales. ¡Sincroniza con la nube!</div>
                     </div>
                     <div class="glass-panel p-5 border-l-4 border-indigo-500">
                         <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-sliders text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Configuración</h3></div>
                         <ul class="space-y-2 text-xs text-slate-300">
                             <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
                             <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
-                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio el hábito (L, M, X...).</li>
+                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio.</li>
                         </ul>
                     </div>
                     <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
                         <div class="flex items-center gap-2 mb-4 text-purple-400"><i class="ph-fill ph-path text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3></div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4><p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p></div>
-                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4><p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p></div>
-                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4><p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4><p class="text-[11px] text-slate-400">En el calendario de la izquierda.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4><p class="text-[11px] text-slate-400">Usa los sliders o el botón de check.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4><p class="text-[11px] text-slate-400">Registrar fuera de día activo suma puntos extra.</p></div>
                         </div>
                     </div>
                     <div class="glass-panel p-5 border-l-4 border-cyan-500">
                         <div class="flex items-center gap-2 mb-3 text-cyan-400"><i class="ph-fill ph-floppy-disk text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3></div>
-                        <p class="text-xs text-slate-300 mb-3">Para pasar tus datos al móvil o a otro ordenador:</p>
+                        <p class="text-xs text-slate-300 mb-3">Opciones para salvar tus datos:</p>
                         <div class="flex gap-2">
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Exportar (Descarga .json)</button>
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Enviar archivo</button>
-                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">3. Importar</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Sincronizar Nube (Login)</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Exportar Archivo</button>
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-center gap-1 text-center pb-4 opacity-70 hover:opacity-100 transition-opacity">
                     <p class="text-[10px] text-slate-500 font-medium">App creada por <strong class="text-slate-400">Enrique Gil</strong></p>
                     <a href="https://www.corporativafoto.es" target="_blank" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition border-b border-indigo-500/30 hover:border-indigo-400 pb-0.5">www.corporativafoto.es</a>
                 </div>
             </div>
 
-            <!-- VISTA 5: ESTRATEGIAS -->
+            <!-- VISTA 5: ESTRATEGIAS (AQUÍ ESTÁN) -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col">
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
                     <div class="flex items-start gap-4">
@@ -447,8 +408,7 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Cards de guía... -->
-                     <div class="glass-panel p-5 guide-card" style="--card-color: #60a5fa">
+                    <div class="glass-panel p-5 guide-card" style="--card-color: #60a5fa">
                         <div class="flex items-center gap-3 mb-3 text-blue-400"><i class="ph-fill ph-baby text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">La Regla del 1%</h3></div>
                         <p class="text-xs text-slate-400 mb-3 font-medium">Empieza tan pequeño que sea imposible decir que no.</p>
                         <div class="bg-slate-900/50 rounded-lg p-3 border border-white/5 space-y-2 text-xs">
@@ -456,12 +416,44 @@
                             <div class="flex items-center gap-2 text-emerald-400 font-bold"><i class="ph-bold ph-check"></i> "Caminar 5 minutos"</div>
                         </div>
                     </div>
-                    <!-- (Cards restantes omitidas por brevedad, se pueden copiar del original si se desean todas) -->
-                </div>
-                
-                <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-center gap-1 text-center pb-4 opacity-70 hover:opacity-100 transition-opacity">
-                    <p class="text-[10px] text-slate-500 font-medium">App creada por <strong class="text-slate-400">Enrique Gil</strong></p>
-                    <a href="https://www.corporativafoto.es" target="_blank" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition border-b border-indigo-500/30 hover:border-indigo-400 pb-0.5">www.corporativafoto.es</a>
+                    <div class="glass-panel p-5 guide-card" style="--card-color: #c084fc">
+                        <div class="flex items-center gap-3 mb-3 text-purple-400"><i class="ph-fill ph-stack text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Apilado de Hábitos</h3></div>
+                        <p class="text-xs text-slate-400 mb-3 font-medium">Usa una rutina vieja para disparar una nueva.</p>
+                        <div class="text-center p-2 bg-slate-800/50 rounded-lg border border-purple-500/20">
+                            <span class="text-slate-400 text-xs">Después de</span><span class="text-white font-bold text-xs bg-slate-700 px-1 rounded mx-1">[Hábito Actual]</span>
+                            <div class="my-1 text-purple-400"><i class="ph-bold ph-arrow-down"></i></div>
+                            <span class="text-slate-400 text-xs">Haré</span><span class="text-purple-300 font-bold text-xs bg-purple-900/30 px-1 rounded mx-1">[Nuevo Hábito]</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-5 guide-card" style="--card-color: #facc15">
+                        <div class="flex items-center gap-3 mb-3 text-yellow-400"><i class="ph-fill ph-house-line text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Arquitectura</h3></div>
+                        <p class="text-xs text-slate-400 mb-2">El entorno gana a la motivación.</p>
+                        <ul class="space-y-1"><li class="tip-bullet">Zapatillas en la puerta.</li><li class="tip-bullet">Botella de agua llena en la mesa.</li><li class="tip-bullet">App abierta en primera pantalla.</li></ul>
+                    </div>
+                    <div class="glass-panel p-5 guide-card" style="--card-color: #f472b6">
+                        <div class="flex items-center gap-3 mb-3 text-pink-400"><i class="ph-fill ph-fingerprint text-2xl"></i><h3 class="font-bold text-white text-sm uppercase">Identidad</h3></div>
+                        <p class="text-xs text-slate-400 mb-3">No digas lo que haces, di quién eres.</p>
+                        <div class="bg-gradient-to-r from-pink-500/10 to-transparent p-3 rounded-l-xl border-l-2 border-pink-500"><p class="text-xs italic text-pink-200">"No estoy intentando correr..."</p><p class="text-sm font-bold text-white mt-1">"Soy un corredor"</p></div>
+                    </div>
+                    <div class="glass-panel p-5 guide-card border-red-500/20" style="--card-color: #f87171">
+                        <div class="flex items-center gap-3 mb-3 text-red-400"><i class="ph-fill ph-warning-octagon text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Regla de Oro</h3></div>
+                        <div class="text-center py-2"><p class="text-2xl font-black text-white leading-none">NUNCA</p><p class="text-sm text-red-400 font-bold uppercase tracking-widest">DOS VECES</p></div>
+                        <p class="text-[11px] text-slate-400 text-center mt-2">Fallar un día es un accidente. Fallar dos es el inicio de un nuevo (mal) hábito.</p>
+                    </div>
+                    <div class="glass-panel p-5 guide-card" style="--card-color: #4ade80">
+                        <div class="flex items-center gap-3 mb-3 text-green-400"><i class="ph-fill ph-gift text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Placer Inmediato</h3></div>
+                        <p class="text-xs text-slate-400 mb-2">El cerebro repite lo que se siente bien AHORA.</p>
+                        <ul class="space-y-1"><li class="tip-bullet">Solo escucho mi podcast favorito al entrenar.</li><li class="tip-bullet">Marco el check verde (¡dopamina!).</li></ul>
+                    </div>
+                    <div class="glass-panel p-5 guide-card md:col-span-2 lg:col-span-3 bg-slate-800/30" style="--card-color: #94a3b8">
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2 text-indigo-300"><i class="ph-fill ph-gear text-2xl animate-spin-fast" style="animation-duration: 3s"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">Sistemas > Motivación</h3></div>
+                                <p class="text-xs text-slate-300">La motivación es una emoción, sube y baja. Los sistemas son lógicos. Crea un plan B: <span class="text-white font-bold">"Si no puedo ir al gym 1h, haré 10 flexiones en casa".</span> Reduce la fricción para los buenos hábitos y auméntala para los malos.</p>
+                            </div>
+                            <div class="flex gap-2 text-[10px] font-mono text-slate-500 uppercase tracking-widest border-l border-slate-700 pl-4"><div class="text-center"><div class="text-xl font-bold text-white">X</div><div>Meta Perfecta</div></div><div class="text-center"><div class="text-xl font-bold text-emerald-400">✓</div><div>Mínimo Diario</div></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -579,393 +571,7 @@
         </div>
     </div>
 
-    <script>
-        function app() {
-            return {
-                habits: [],
-                logs: {},
-                notes: {},
-                tempHabits: [],
-                currentDate: new Date(),
-                selectedDay: null,
-                showSettings: false,
-                savedMsg: false,
-                viewMode: 'stats',
-                mobileTab: 'today',
-                refreshing: false,
-                charts: {}, 
-                chartsYear: {},
-                sortableInstance: null,
-                palette: ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6', '#6366f1', '#84cc16', '#a855f7'],
-                
-                // SUPABASE AUTH VARS
-                user: null,
-                showAuthModal: false,
-                authEmail: '',
-                authPass: '',
-                authMsg: '',
-                isSyncing: false,
-                saveTimeout: null,
-
-                get daysInMonth() { return new Date(this.year, this.month + 1, 0).getDate(); },
-                get blanks() { const firstDay = new Date(this.year, this.month, 1).getDay(); return (firstDay === 0 ? 6 : firstDay - 1); },
-                get month() { return this.currentDate.getMonth(); },
-                get year() { return this.currentDate.getFullYear(); },
-                get monthName() { return this.currentDate.toLocaleString('es-ES', { month: 'long' }); },
-                get isMobile() { return window.innerWidth < 1024; },
-
-                initApp() {
-                    // Carga Local
-                    const cfg = localStorage.getItem('trihabit_config_v17');
-                    const dat = localStorage.getItem('trihabit_logs_v17');
-                    const nts = localStorage.getItem('trihabit_notes_v17');
-
-                    if (cfg) {
-                        this.habits = JSON.parse(cfg);
-                        this.habits.forEach((h, i) => { if (!h.days) h.days = [0,1,2,3,4,5,6]; if (!h.id) h.id = 'h-' + i + '-' + Date.now(); });
-                        if(this.habits.length === 0) this.seedDefaultHabits();
-                    } else { this.seedDefaultHabits(); }
-
-                    if (dat) this.logs = JSON.parse(dat);
-                    if (nts) this.notes = JSON.parse(nts);
-
-                    this.gotoToday();
-                    if(this.isMobile) this.mobileTab = 'today';
-                    this.$nextTick(() => { setTimeout(() => this.initChart(), 300); });
-                    
-                    // Iniciar Auth Supabase
-                    this.initAuth();
-                },
-                
-                // --- AUTH Y SYNC SUPABASE (VARIABLES 'sb') ---
-                async initAuth() {
-                    const { data: { session } } = await sb.auth.getSession();
-                    if (session) {
-                        this.user = session.user;
-                        await this.pullDataCloud();
-                    }
-                    sb.auth.onAuthStateChange(async (_event, session) => {
-                        this.user = session ? session.user : null;
-                        if(this.user) await this.pullDataCloud();
-                    });
-                },
-                async handleAuth(type) {
-                    this.authMsg = 'Procesando...';
-                    try {
-                        let result;
-                        if (type === 'signup') {
-                            result = await sb.auth.signUp({ email: this.authEmail, password: this.authPass });
-                            if (result.error) throw result.error;
-                            this.authMsg = '¡Cuenta creada! Revisa tu email o entra.';
-                            if(result.data.user) await this.handleAuth('signin');
-                        } else {
-                            result = await sb.auth.signInWithPassword({ email: this.authEmail, password: this.authPass });
-                            if (result.error) throw result.error;
-                            this.showAuthModal = false;
-                            this.authMsg = '';
-                        }
-                    } catch (error) { this.authMsg = error.message; }
-                },
-                async logout() {
-                    if(confirm('¿Cerrar sesión? Los datos locales se mantendrán.')) {
-                        await sb.auth.signOut();
-                        this.user = null;
-                    }
-                },
-                async pushDataCloud() {
-                    if (!this.user) return;
-                    this.savedMsg = false;
-                    // Solo enviamos lo básico (sin moods)
-                    const payload = {
-                        user_id: this.user.id,
-                        habits: this.habits,
-                        logs: this.logs,
-                        notes: this.notes,
-                        updated_at: new Date()
-                    };
-                    const { error } = await sb.from('user_data').upsert(payload);
-                    if (error) console.error('Error subiendo:', error);
-                    else console.log('☁️ Datos sincronizados en la nube');
-                },
-                async pullDataCloud() {
-                    if (!this.user) return;
-                    this.isSyncing = true;
-                    const { data, error } = await sb.from('user_data').select('*').eq('user_id', this.user.id).single();
-                    if (data) {
-                        this.habits = data.habits || [];
-                        this.logs = data.logs || {};
-                        this.notes = data.notes || {};
-                        // Ignoramos moods al bajar si la DB los tuviera
-                        localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
-                        localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
-                        localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                        this.forceRedraw();
-                        console.log('☁️ Datos descargados de la nube');
-                    }
-                    this.isSyncing = false;
-                },
-
-                seedDefaultHabits() {
-                    this.habits = [
-                        { id: 'h1', name: 'Ejercicio', max: 45, unit: 'min', color: this.palette[0], active: true, type: 'contador', days: [1,3,5] }, 
-                        { id: 'h2', name: 'Lectura', max: 20, unit: 'pag', color: this.palette[1], active: true, type: 'contador', days: [0,1,2,3,4,5,6] },
-                        { id: 'h3', name: 'Meditar', max: 1, unit: '', color: this.palette[2], active: true, type: 'check', days: [0,1,2,3,4,5,6] }
-                    ];
-                    for(let i=3; i<6; i++) {
-                        this.habits.push({ id: `h${i+1}`, name: `Hábito ${i+1}`, max: 1, unit: 'u', color: this.palette[i] || '#cbd5e1', active: false, type: 'check', days: [0,1,2,3,4,5,6] });
-                    }
-                },
-
-                saveData() {
-                    localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
-                    localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
-                    localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                    this.savedMsg = true;
-                    setTimeout(() => this.savedMsg = false, 1500);
-                    // Push Cloud Debounced
-                    if (this.user) {
-                        clearTimeout(this.saveTimeout);
-                        this.saveTimeout = setTimeout(() => { this.pushDataCloud(); }, 1000);
-                    }
-                },
-
-                // --- UTILS BÁSICOS ---
-                getKey(day) { return `${this.year}-${(this.month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`; },
-                dateToKey(dateObj) { return `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, '0')}-${dateObj.getDate().toString().padStart(2, '0')}`; },
-                getVal(day, idx) { const key = this.getKey(day); return this.logs[key] ? (this.logs[key][idx] || 0) : 0; },
-                getDayNote(day) { if (!day) return ''; const key = this.getKey(day); return this.notes[key] || ''; },
-                updateDayNote(day, text) { const key = this.getKey(day); this.notes[key] = text; this.saveData(); },
-                hasNote(day) { const key = this.getKey(day); return this.notes[key] && this.notes[key].trim().length > 0; },
-
-                gotoToday() { this.currentDate = new Date(); this.selectedDay = this.currentDate.getDate(); if(this.isMobile) this.mobileTab = 'today'; },
-                changeMonth(val) { this.currentDate = new Date(this.year, this.month + val, 1); this.selectedDay = null; this.forceRedraw(); },
-                selectDay(day) { this.selectedDay = day; },
-                changeDayOffset(offset) { const c = new Date(this.year, this.month, this.selectedDay); c.setDate(c.getDate() + offset); this.currentDate = c; this.selectedDay = c.getDate(); this.forceRedraw(); },
-                isToday(day) { const t = new Date(); return day === t.getDate() && this.month === t.getMonth() && this.year === t.getFullYear(); },
-                
-                getDayClass(day) {
-                    if (this.selectedDay === day) return 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 ring-2 ring-indigo-400 transform scale-105 z-20';
-                    if (this.isToday(day)) return 'bg-slate-800 border border-indigo-500/50';
-                    return 'bg-slate-800/40 hover:bg-slate-700/80';
-                },
-
-                formatFullDate(day) { if (!day) return ''; const d = new Date(this.year, this.month, day); const s = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); },
-                getDotStyle(day, idx, habit) {
-                    const dObj = new Date(this.year, this.month, day);
-                    const val = this.getVal(day, idx);
-                    const isRequired = habit.days.includes(dObj.getDay());
-                    if (val > 0) return `background: ${habit.color}`; 
-                    if (isRequired) return `background: ${habit.color}; opacity: 0.5`; 
-                    return 'display: none';
-                },
-                isHabitActiveToday(habit) { if (!this.selectedDay) return false; return habit.days.includes(new Date(this.year, this.month, this.selectedDay).getDay()); },
-
-                updateVal(idx, val) {
-                    if (!this.selectedDay) return;
-                    const parsedVal = val === '' ? 0 : parseFloat(val);
-                    if (parsedVal < 0) return;
-                    const key = this.getKey(this.selectedDay);
-                    if (!this.logs[key]) this.logs[key] = [];
-                    const prevVal = this.logs[key][idx] || 0;
-                    if (prevVal < this.habits[idx].max && parsedVal >= this.habits[idx].max) { this.celebrate(); }
-                    this.logs[key][idx] = parsedVal;
-                    this.logs = { ...this.logs }; 
-                    this.saveData();
-                    if (this.viewMode === 'stats' && this.charts[idx] && this.charts[idx].data.datasets[0].data) {
-                         if(this.charts[idx].data.datasets[0].data[this.selectedDay - 1] !== undefined) {
-                            this.charts[idx].data.datasets[0].data[this.selectedDay - 1] = parsedVal;
-                            this.charts[idx].update('none');
-                         }
-                    }
-                    if (this.viewMode === 'year') this.forceRedraw(); 
-                },
-                toggleCheck(idx) { const current = this.getVal(this.selectedDay, idx); this.updateVal(idx, current >= 1 ? 0 : 1); },
-                celebrate() { 
-                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#6366f1', '#ffffff'] }); 
-                },
-
-                // Stats Helpers
-                checkHabitDone(dateObj, idx) {
-                    const habit = this.habits[idx];
-                    if (!habit.days.includes(dateObj.getDay())) return 'skip';
-                    const key = this.dateToKey(dateObj);
-                    const val = this.logs[key] ? (this.logs[key][idx] || 0) : 0;
-                    return val >= habit.max;
-                },
-                getCurrentStreak(idx) {
-                    let streak = 0;
-                    let d = new Date();
-                    for (let i = 0; i < 365; i++) {
-                        const status = this.checkHabitDone(d, idx);
-                        if (status === true) streak++;
-                        else if (status === false) { if (d.toDateString() !== new Date().toDateString()) break; }
-                        d.setDate(d.getDate() - 1);
-                    }
-                    return streak;
-                },
-                
-                openSettings() { this.tempHabits = JSON.parse(JSON.stringify(this.habits)); this.showSettings = true; this.$nextTick(() => { this.initSortable(); }); },
-                closeSettings() { this.showSettings = false; if (this.sortableInstance) this.sortableInstance.destroy(); },
-                initSortable() {
-                    const el = document.getElementById('habits-list');
-                    if (!el) return;
-                    this.sortableInstance = new Sortable(el, { handle: '.drag-handle', animation: 150, ghostClass: 'drag-ghost', onEnd: (evt) => { const m = this.tempHabits.splice(evt.oldIndex, 1)[0]; this.tempHabits.splice(evt.newIndex, 0, m); } });
-                },
-                toggleDay(habit, dayIdx) { if (habit.days.includes(dayIdx)) { if(habit.days.length > 1) habit.days = habit.days.filter(d => d !== dayIdx); } else { habit.days.push(dayIdx); habit.days.sort(); } },
-                saveSettings() { this.habits = JSON.parse(JSON.stringify(this.tempHabits)); this.saveData(); this.closeSettings(); this.forceRedraw(); },
-
-                switchView(mode) { this.viewMode = mode; this.forceRedraw(); },
-                refreshCharts() { this.refreshing = true; this.forceRedraw(); setTimeout(() => { this.refreshing = false; }, 500); },
-                destroyCharts() {
-                    if (this.charts) Object.values(this.charts).forEach(c => c.destroy && c.destroy()); this.charts = {};
-                    if (this.chartsYear) Object.values(this.chartsYear).forEach(c => c.destroy && c.destroy()); this.chartsYear = {};
-                },
-                forceRedraw() {
-                    this.destroyCharts();
-                    this.$nextTick(() => {
-                        if (this.viewMode === 'stats') this.initChart();
-                        else if (this.viewMode === 'year') { this.initYearChart(); this.renderHeatmap(); }
-                    });
-                },
-
-                renderHeatmap() {
-                    const container = document.getElementById('heatmap-container');
-                    if (!container) return;
-                    container.innerHTML = '';
-                    const today = new Date();
-                    const startDate = new Date(); startDate.setDate(today.getDate() - 364);
-                    while(startDate.getDay() !== 1) { startDate.setDate(startDate.getDate() - 1); }
-                    let currentDate = new Date(startDate);
-                    while (currentDate <= today) {
-                        const dateKey = this.dateToKey(currentDate);
-                        let totalPotential = 0; let totalAchieved = 0;
-                        this.habits.forEach((h, i) => {
-                            if (h.active && (h.days.includes(currentDate.getDay()) || (this.logs[dateKey] && this.logs[dateKey][i] > 0))) {
-                                if (h.days.includes(currentDate.getDay())) totalPotential++;
-                                const val = this.logs[dateKey] ? (this.logs[dateKey][i] || 0) : 0;
-                                if (val >= h.max) totalAchieved++; else if (val > 0) totalAchieved += (val / h.max);
-                            }
-                        });
-                        const intensity = totalPotential > 0 ? (totalAchieved / totalPotential) : 0;
-                        const cell = document.createElement('div');
-                        cell.className = 'heatmap-cell transition-all duration-300';
-                        let bg = 'rgba(30, 41, 59, 0.5)';
-                        if (intensity > 0) bg = '#0e4429'; if (intensity > 0.25) bg = '#006d32'; if (intensity > 0.5) bg = '#26a641'; if (intensity > 0.75) bg = '#39d353'; if (intensity > 1) bg = '#22c55e';
-                        cell.style.backgroundColor = bg;
-                        cell.title = `${currentDate.toLocaleDateString()}: ${Math.round(intensity*100)}%`;
-                        container.appendChild(cell);
-                        currentDate.setDate(currentDate.getDate() + 1);
-                    }
-                },
-
-                shareStats() {
-                    const element = document.getElementById('capture-area');
-                    const scrollContainer = document.getElementById('stats-scroll-container');
-                    if (!element) return;
-                    const originalOverflow = element.style.overflow; const originalHeight = element.style.height; const originalPadding = element.style.paddingBottom;
-                    let originalScrollClass = '';
-                    if (scrollContainer) { originalScrollClass = scrollContainer.className; scrollContainer.classList.remove('overflow-x-auto'); scrollContainer.classList.add('flex-wrap'); }
-                    element.style.overflow = 'visible'; element.style.height = 'auto'; element.style.paddingBottom = '50px'; 
-                    const flash = document.createElement('div');
-                    flash.className = 'fixed inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-500';
-                    document.body.appendChild(flash);
-                    setTimeout(() => flash.classList.add('opacity-0'), 50); setTimeout(() => flash.remove(), 500);
-                    html2canvas(element, { backgroundColor: '#020617', scale: 2, windowHeight: element.scrollHeight + 200 }).then(canvas => {
-                        element.style.overflow = originalOverflow; element.style.height = originalHeight; element.style.paddingBottom = originalPadding;
-                        if (scrollContainer) scrollContainer.className = originalScrollClass;
-                        const link = document.createElement('a'); link.download = `trihabit-stats-${this.dateToKey(new Date())}.png`; link.href = canvas.toDataURL(); link.click();
-                    }).catch(() => {
-                        element.style.overflow = originalOverflow; element.style.height = originalHeight; element.style.paddingBottom = originalPadding;
-                        if (scrollContainer) scrollContainer.className = originalScrollClass;
-                    });
-                },
-
-                exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '3.1' };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
-                },
-                triggerImport() { this.$refs.fileInput.click(); },
-                handleImport(e) {
-                    const f = e.target.files[0]; if(!f) return;
-                    const r = new FileReader();
-                    r.onload = (ev) => {
-                        try {
-                            const d = JSON.parse(ev.target.result);
-                            if(d.config && d.logs) {
-                                if(confirm("Sobrescribir datos actuales?")) {
-                                    this.habits = d.config; this.logs = d.logs; 
-                                    if(d.notes) this.notes = d.notes;
-                                    this.saveData(); location.reload();
-                                }
-                            }
-                        } catch(x) { alert("Error archivo inválido"); }
-                    }; r.readAsText(f);
-                },
-
-                calcTotal(idx) {
-                    const prefix = `${this.year}-${(this.month+1).toString().padStart(2,'0')}`;
-                    return Object.keys(this.logs).filter(k => k.startsWith(prefix)).reduce((acc, k) => acc + (this.logs[k][idx] || 0), 0);
-                },
-                getCompletionRate(idx) {
-                    const habit = this.habits[idx];
-                    let potential = 0; let actual = 0;
-                    for(let i=1; i<=this.daysInMonth; i++) {
-                        const d = new Date(this.year, this.month, i);
-                        const isRequired = habit.days.includes(d.getDay());
-                        if (isRequired) potential += habit.max;
-                        actual += this.getVal(i, idx);
-                    }
-                    if (potential === 0) return 0;
-                    return (actual / potential) * 100;
-                },
-                getProgressText(idx) { return Math.round(this.getCompletionRate(idx)) + '% Completado'; },
-                getYearlyTotal(idx) {
-                    const yearData = new Array(12).fill(0);
-                    const prefix = this.year + '-';
-                    Object.keys(this.logs).forEach(key => {
-                        if (key.startsWith(prefix)) {
-                            const m = parseInt(key.split('-')[1]) - 1;
-                            yearData[m] += (this.logs[key][idx] || 0);
-                        }
-                    });
-                    return yearData.reduce((a, b) => a + b, 0);
-                },
-
-                initChart() {
-                    this.habits.forEach((h, index) => {
-                        if (!h.active) return;
-                        const ctx = document.getElementById('chart-month-' + index);
-                        if (!ctx) return;
-                        const days = Array.from({length: this.daysInMonth}, (_, i) => i + 1);
-                        const vals = days.map(d => this.getVal(d, index));
-                        this.charts[index] = new Chart(ctx, {
-                            type: 'line',
-                            data: { labels: days, datasets: [{ data: vals, borderColor: h.color, borderWidth: 2, backgroundColor: (c) => { const g = c.chart.ctx.createLinearGradient(0,0,0,200); g.addColorStop(0, h.color+'60'); g.addColorStop(1, h.color+'00'); return g; }, fill: true, pointRadius: 0, pointHitRadius: 10 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { x: {display: false}, y: {display: false, min: 0} }, animation: { duration: 0 } }
-                        });
-                    });
-                },
-                initYearChart() {
-                    const months = ['E','F','M','A','M','J','J','A','S','O','N','D'];
-                    this.habits.forEach((h, index) => {
-                        if (!h.active) return;
-                        const ctx = document.getElementById('chart-year-' + index);
-                        if (!ctx) return;
-                        const data = new Array(12).fill(0);
-                        Object.keys(this.logs).forEach(k => { if(k.startsWith(this.year)) data[parseInt(k.split('-')[1])-1] += (this.logs[k][index]||0); });
-                        this.chartsYear[index] = new Chart(ctx, {
-                            type: 'bar',
-                            data: { labels: months, datasets: [{ data: data, backgroundColor: h.color, borderRadius: 3 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { x: { grid: {display:false}, ticks: {color: '#64748b'} }, y: { display: false } } }
-                        });
-                    });
-                },
-                resetAll() { if(confirm("¿Borrar TODO? No hay vuelta atrás.")) { localStorage.clear(); location.reload(); } }
-            }
-        }
-    </script>
+    <!-- Scripts de la Lógica -->
+    <script src="app.js"></script>
 </body>
 </html>
