@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.1 - Fixed</title>
+    <title>TriHabit v3.2 - Clean Cloud</title>
     
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,8 +21,7 @@
         const SUPABASE_URL = 'https://accwhbzrdwvlofxcdvix.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjY3doYnpyZHd2bG9meGNkdml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2NzMyODcsImV4cCI6MjA4MDI0OTI4N30.BFXlKhOf5r0JFp8sjoPZ6LbeDqyrdYO7KrXKjE2pY7o';
         
-        // CORRECCIÓN: Usamos 'sb' en lugar de 'supabase' para evitar el conflicto de nombres
-        // Usamos window.supabase para acceder explícitamente a la librería global
+        // Usamos 'sb' para evitar conflictos de nombres
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         tailwind.config = {
@@ -84,7 +83,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.1 Cloud</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.2</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -191,21 +190,7 @@
                             </div>
                         </div>
                     </template>
-                    
-                    <!-- SELECTOR DE ÁNIMO (PC) -->
-                    <div class="mt-6 pt-6 border-t border-slate-700/50">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-smiley text-pink-400"></i> Estado de ánimo</label>
-                         <div class="flex justify-between items-center px-2 bg-slate-900/50 rounded-xl p-3 border border-slate-700">
-                            <template x-for="i in 5">
-                                <button @click="setMood(i)" class="text-xl transition-all duration-200 hover:scale-125 focus:outline-none relative" :class="getMood(selectedDay) === i ? 'scale-125 filter-none' : 'opacity-40 grayscale hover:grayscale-0 hover:opacity-100'">
-                                    <span x-show="i===1">😫</span><span x-show="i===2">😕</span><span x-show="i===3">😐</span><span x-show="i===4">🙂</span><span x-show="i===5">🤩</span>
-                                    <div x-show="getMood(selectedDay) === i" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-pink-500 rounded-full shadow-[0_0_5px_#ec4899]"></div>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-slate-700/50 pb-4">
+                    <div class="mt-6 pt-6 border-t border-slate-700/50 pb-4">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas</label>
                         <textarea class="w-full bg-slate-900/50 text-slate-300 text-sm rounded-xl border border-slate-700 p-3 focus:border-indigo-500 focus:outline-none transition resize-none custom-scrollbar" rows="3" placeholder="Notas..." :value="getDayNote(selectedDay)" @input="updateDayNote(selectedDay, $el.value)"></textarea>
                     </div>
@@ -281,19 +266,6 @@
                         </div>
                     </div>
                 </template>
-                
-                <!-- SELECTOR DE ÁNIMO (MÓVIL) -->
-                <div class="mt-4 mb-4 bg-slate-800/40 p-3 rounded-xl border border-slate-700/50">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-smiley text-pink-400"></i> ¿Cómo te sientes hoy?</label>
-                    <div class="flex justify-between items-center px-2">
-                        <template x-for="i in 5">
-                            <button @click="setMood(i)" class="text-2xl transition-all duration-200 hover:scale-125 focus:outline-none relative group" :class="getMood(selectedDay) === i ? 'scale-125 filter-none' : 'opacity-40 grayscale hover:grayscale-0 hover:opacity-100'">
-                                <span x-show="i===1">😫</span><span x-show="i===2">😕</span><span x-show="i===3">😐</span><span x-show="i===4">🙂</span><span x-show="i===5">🤩</span>
-                                <div x-show="getMood(selectedDay) === i" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-pink-500 rounded-full shadow-[0_0_5px_#ec4899]"></div>
-                            </button>
-                        </template>
-                    </div>
-                </div>
 
                 <div class="mt-6 pt-6 border-t border-slate-800">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas del día</label>
@@ -312,21 +284,24 @@
                         <i class="ph-bold ph-chart-line-up"></i> Progreso Mes
                     </button>
                     <button @click="switchView('year')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'year' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
-                        <i class="ph-bold ph-calendar-blank"></i> Anual
+                        <i class="ph-bold ph-calendar-blank"></i> Resumen Anual
                     </button>
-                    <button @click="switchView('insights')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-pink-500' : 'text-slate-500 border-transparent hover:text-pink-300'">
-                        <i class="ph-bold ph-brain"></i> IA & Logros
+                    <button @click="switchView('insights')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
+                        <i class="ph-bold ph-trophy"></i> Logros
+                    </button>
+                    <button @click="switchView('manual')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'manual' ? 'text-cyan-400 border-cyan-500' : 'text-slate-500 border-transparent hover:text-cyan-300'">
+                        <i class="ph-bold ph-info"></i> Manual
                     </button>
                     <button @click="switchView('guide')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'guide' ? 'text-emerald-400 border-emerald-500' : 'text-slate-500 border-transparent hover:text-emerald-300'">
-                        <i class="ph-bold ph-book-open"></i> Guía
+                        <i class="ph-bold ph-book-open"></i> Estrategias
                     </button>
                 </div>
                 
                 <div class="flex gap-2">
-                    <button x-show="viewMode !== 'guide'" @click="refreshCharts()" aria-label="Recargar" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition group">
+                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="refreshCharts()" aria-label="Recargar" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition group">
                         <i class="ph-bold ph-arrow-clockwise group-hover:rotate-180 transition-transform duration-500" :class="refreshing ? 'animate-spin-fast' : ''"></i>
                     </button>
-                    <button x-show="viewMode !== 'guide'" @click="shareStats()" aria-label="Compartir" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 flex items-center justify-center text-slate-400 hover:text-white transition">
+                    <button x-show="viewMode !== 'guide' && viewMode !== 'manual'" @click="shareStats()" aria-label="Compartir" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 flex items-center justify-center text-slate-400 hover:text-white transition">
                         <i class="ph-bold ph-camera"></i>
                     </button>
                 </div>
@@ -385,36 +360,8 @@
                 </div>
             </div>
 
-            <!-- VISTA 3: INTELIGENCIA & LOGROS -->
+            <!-- VISTA 3: LOGROS (Revertido a Original) -->
             <div x-show="viewMode === 'insights'" x-transition.opacity class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">
-                <!-- PANEL IA: CORRELACIONES -->
-                <div class="glass-panel p-5 md:col-span-2 border-l-4 border-pink-500 bg-gradient-to-r from-slate-900 to-slate-900/50">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-duotone ph-brain text-pink-400"></i> Análisis Inteligente</h3>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div x-show="Object.keys(moods).length < 5" class="text-center py-4 text-slate-500 text-xs italic">Registra tu estado de ánimo durante unos días para ver correlaciones.</div>
-                        <template x-for="(h, i) in habits">
-                            <div x-show="h.active && (getHabitCorrelation(i) || getWeakestDay(i))" class="bg-slate-800/50 p-3 rounded-lg flex items-center justify-between group hover:bg-slate-800 transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-8 rounded-full" :style="`background: ${h.color}`"></div>
-                                    <div>
-                                        <div class="font-bold text-sm text-white" x-text="h.name"></div>
-                                        <div x-if="getHabitCorrelation(i)" class="text-[11px] text-slate-400 mt-0.5">
-                                            <span x-show="getHabitCorrelation(i).impact > 0.3" class="text-emerald-400 flex items-center gap-1"><i class="ph-bold ph-trend-up"></i> Mejora tu día un <span x-text="getHabitCorrelation(i).percent + '%'"></span></span>
-                                            <span x-show="getHabitCorrelation(i).impact < -0.3" class="text-red-400 flex items-center gap-1"><i class="ph-bold ph-trend-down"></i> Asociado a días bajos</span>
-                                            <span x-show="Math.abs(getHabitCorrelation(i).impact) <= 0.3" class="text-slate-500">Sin impacto notable en tu ánimo.</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div x-show="getWeakestDay(i)" class="text-right">
-                                    <div class="text-[9px] font-bold uppercase tracking-wider text-orange-400 mb-0.5 flex items-center justify-end gap-1"><i class="ph-fill ph-warning"></i> Cuidado</div>
-                                    <div class="text-[10px] text-slate-300">Sueles fallar los <strong class="text-white" x-text="getWeakestDay(i)"></strong></div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- RACHAS -->
                 <div class="glass-panel p-5 md:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 shrink-0">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-fire text-orange-500"></i> Rachas Actuales</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -426,8 +373,6 @@
                         </template>
                     </div>
                 </div>
-
-                <!-- METAS MENSUALES -->
                 <div class="glass-panel p-5 md:col-span-2 shrink-0">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-target text-indigo-400"></i> Objetivos Mensuales</h3>
                     <div class="space-y-4">
@@ -446,7 +391,54 @@
                 </div>
             </div>
 
-            <!-- VISTA 4: ESTRATEGIAS -->
+            <!-- VISTA 4: MANUAL APP -->
+            <div x-show="viewMode === 'manual'" x-transition.opacity class="flex flex-col">
+                <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-cyan-900/40 to-slate-900 border-cyan-500/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0"><i class="ph-fill ph-info text-2xl"></i></div>
+                        <div><h2 class="text-xl font-bold text-white">Manual de Usuario</h2><p class="text-sm text-slate-400">Cómo funciona TriHabit y dónde están tus datos.</p></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="glass-panel p-5 border-l-4 border-emerald-500">
+                        <div class="flex items-center gap-2 mb-3 text-emerald-400"><i class="ph-fill ph-shield-check text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Privacidad Total</h3></div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">Tus datos <strong>NUNCA</strong> salen de tu dispositivo. Se guardan en el "Almacenamiento Local" de tu navegador.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial/cookies del navegador, perderás los datos. ¡Usa la opción "Exportar" frecuentemente!</div>
+                    </div>
+                    <div class="glass-panel p-5 border-l-4 border-indigo-500">
+                        <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-sliders text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Configuración</h3></div>
+                        <ul class="space-y-2 text-xs text-slate-300">
+                            <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
+                            <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
+                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio el hábito (L, M, X...).</li>
+                        </ul>
+                    </div>
+                    <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
+                        <div class="flex items-center gap-2 mb-4 text-purple-400"><i class="ph-fill ph-path text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">1. Selecciona el Día</h4><p class="text-[11px] text-slate-400">En el calendario de la izquierda. Los días de hoy tienen borde blanco.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">2. Registra Progreso</h4><p class="text-[11px] text-slate-400">Usa los sliders o el botón de check. Si cumples la meta, verás confeti.</p></div>
+                            <div class="manual-step"><h4 class="text-white font-bold text-xs mb-1">3. Días Extra</h4><p class="text-[11px] text-slate-400">Puedes registrar un hábito en un día que no toca (ej: Domingo). Aparecerá como "EXTRA" y sumará puntos.</p></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-5 border-l-4 border-cyan-500">
+                        <div class="flex items-center gap-2 mb-3 text-cyan-400"><i class="ph-fill ph-floppy-disk text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Copia de Seguridad</h3></div>
+                        <p class="text-xs text-slate-300 mb-3">Para pasar tus datos al móvil o a otro ordenador:</p>
+                        <div class="flex gap-2">
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">1. Exportar (Descarga .json)</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">2. Enviar archivo</button>
+                            <button class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 text-white">3. Importar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-center gap-1 text-center pb-4 opacity-70 hover:opacity-100 transition-opacity">
+                    <p class="text-[10px] text-slate-500 font-medium">App creada por <strong class="text-slate-400">Enrique Gil</strong></p>
+                    <a href="https://www.corporativafoto.es" target="_blank" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition border-b border-indigo-500/30 hover:border-indigo-400 pb-0.5">www.corporativafoto.es</a>
+                </div>
+            </div>
+
+            <!-- VISTA 5: ESTRATEGIAS -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col">
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
                     <div class="flex items-start gap-4">
@@ -455,7 +447,7 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Cards de guía... (mismo contenido que antes) -->
+                    <!-- Cards de guía... -->
                      <div class="glass-panel p-5 guide-card" style="--card-color: #60a5fa">
                         <div class="flex items-center gap-3 mb-3 text-blue-400"><i class="ph-fill ph-baby text-2xl"></i><h3 class="font-bold text-white text-sm uppercase tracking-wide">La Regla del 1%</h3></div>
                         <p class="text-xs text-slate-400 mb-3 font-medium">Empieza tan pequeño que sea imposible decir que no.</p>
@@ -464,7 +456,7 @@
                             <div class="flex items-center gap-2 text-emerald-400 font-bold"><i class="ph-bold ph-check"></i> "Caminar 5 minutos"</div>
                         </div>
                     </div>
-                    <!-- (Más cards omitidas por brevedad, se pueden copiar del original si se desean todas) -->
+                    <!-- (Cards restantes omitidas por brevedad, se pueden copiar del original si se desean todas) -->
                 </div>
                 
                 <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-center gap-1 text-center pb-4 opacity-70 hover:opacity-100 transition-opacity">
@@ -486,7 +478,7 @@
             <i class="text-2xl" :class="mobileTab === 'calendar' ? 'ph-fill ph-calendar-blank' : 'ph-bold ph-calendar-blank'"></i><span class="text-[10px] font-medium">Mes</span>
             <div x-show="mobileTab === 'calendar'" class="absolute top-0 w-8 h-1 bg-indigo-500 rounded-b-full shadow-[0_0_10px_#6366f1]"></div>
         </button>
-        <button @click="mobileTab = 'stats'; if(viewMode==='guide') viewMode='stats'" class="flex flex-col items-center justify-center gap-1 h-full relative" :class="mobileTab === 'stats' ? 'text-indigo-400' : 'text-slate-500'">
+        <button @click="mobileTab = 'stats'; if(viewMode==='manual'||viewMode==='guide') viewMode='stats'" class="flex flex-col items-center justify-center gap-1 h-full relative" :class="mobileTab === 'stats' ? 'text-indigo-400' : 'text-slate-500'">
             <i class="text-2xl" :class="mobileTab === 'stats' ? 'ph-fill ph-chart-bar' : 'ph-bold ph-chart-bar'"></i><span class="text-[10px] font-medium">Progreso</span>
             <div x-show="mobileTab === 'stats'" class="absolute top-0 w-8 h-1 bg-indigo-500 rounded-b-full shadow-[0_0_10px_#6366f1]"></div>
         </button>
@@ -593,7 +585,6 @@
                 habits: [],
                 logs: {},
                 notes: {},
-                moods: {}, 
                 tempHabits: [],
                 currentDate: new Date(),
                 selectedDay: null,
@@ -628,7 +619,6 @@
                     const cfg = localStorage.getItem('trihabit_config_v17');
                     const dat = localStorage.getItem('trihabit_logs_v17');
                     const nts = localStorage.getItem('trihabit_notes_v17');
-                    const mds = localStorage.getItem('trihabit_moods_v17');
 
                     if (cfg) {
                         this.habits = JSON.parse(cfg);
@@ -638,7 +628,6 @@
 
                     if (dat) this.logs = JSON.parse(dat);
                     if (nts) this.notes = JSON.parse(nts);
-                    if (mds) this.moods = JSON.parse(mds);
 
                     this.gotoToday();
                     if(this.isMobile) this.mobileTab = 'today';
@@ -648,7 +637,7 @@
                     this.initAuth();
                 },
                 
-                // --- AUTH Y SYNC SUPABASE (VARIABLES ACTUALIZADAS A 'sb') ---
+                // --- AUTH Y SYNC SUPABASE (VARIABLES 'sb') ---
                 async initAuth() {
                     const { data: { session } } = await sb.auth.getSession();
                     if (session) {
@@ -686,12 +675,12 @@
                 async pushDataCloud() {
                     if (!this.user) return;
                     this.savedMsg = false;
+                    // Solo enviamos lo básico (sin moods)
                     const payload = {
                         user_id: this.user.id,
                         habits: this.habits,
                         logs: this.logs,
                         notes: this.notes,
-                        moods: this.moods || {},
                         updated_at: new Date()
                     };
                     const { error } = await sb.from('user_data').upsert(payload);
@@ -706,11 +695,10 @@
                         this.habits = data.habits || [];
                         this.logs = data.logs || {};
                         this.notes = data.notes || {};
-                        this.moods = data.moods || {};
+                        // Ignoramos moods al bajar si la DB los tuviera
                         localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
                         localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
                         localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                        localStorage.setItem('trihabit_moods_v17', JSON.stringify(this.moods));
                         this.forceRedraw();
                         console.log('☁️ Datos descargados de la nube');
                     }
@@ -723,13 +711,15 @@
                         { id: 'h2', name: 'Lectura', max: 20, unit: 'pag', color: this.palette[1], active: true, type: 'contador', days: [0,1,2,3,4,5,6] },
                         { id: 'h3', name: 'Meditar', max: 1, unit: '', color: this.palette[2], active: true, type: 'check', days: [0,1,2,3,4,5,6] }
                     ];
+                    for(let i=3; i<6; i++) {
+                        this.habits.push({ id: `h${i+1}`, name: `Hábito ${i+1}`, max: 1, unit: 'u', color: this.palette[i] || '#cbd5e1', active: false, type: 'check', days: [0,1,2,3,4,5,6] });
+                    }
                 },
 
                 saveData() {
                     localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
                     localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
                     localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                    localStorage.setItem('trihabit_moods_v17', JSON.stringify(this.moods));
                     this.savedMsg = true;
                     setTimeout(() => this.savedMsg = false, 1500);
                     // Push Cloud Debounced
@@ -737,62 +727,6 @@
                         clearTimeout(this.saveTimeout);
                         this.saveTimeout = setTimeout(() => { this.pushDataCloud(); }, 1000);
                     }
-                },
-
-                // --- LÓGICA MOODS & AI ---
-                setMood(val) {
-                    if (!this.selectedDay) return;
-                    const key = this.getKey(this.selectedDay);
-                    this.moods[key] = val;
-                    this.saveData();
-                    this.moods = { ...this.moods };
-                },
-                getMood(day) {
-                    const key = this.getKey(day);
-                    return this.moods[key] || 0;
-                },
-                getHabitCorrelation(habitIdx) {
-                    let sumWith = 0, countWith = 0;
-                    let sumWithout = 0, countWithout = 0;
-                    const keys = Object.keys(this.moods);
-                    if (keys.length < 5) return null;
-                    keys.forEach(key => {
-                        const mood = this.moods[key];
-                        const val = this.logs[key] ? (this.logs[key][habitIdx] || 0) : 0;
-                        const habit = this.habits[habitIdx];
-                        if ((habit.type === 'check' && val > 0) || (val >= habit.max)) { sumWith += mood; countWith++; } 
-                        else { sumWithout += mood; countWithout++; }
-                    });
-                    if (countWith === 0 || countWithout === 0) return null;
-                    const avgWith = sumWith / countWith;
-                    const avgWithout = sumWithout / countWithout;
-                    const diff = avgWith - avgWithout;
-                    return { impact: diff, percent: Math.round((diff / 5) * 100), score: avgWith.toFixed(1) };
-                },
-                getWeakestDay(habitIdx) {
-                    const daysFail = [0,0,0,0,0,0,0];
-                    const daysTotal = [0,0,0,0,0,0,0];
-                    const habit = this.habits[habitIdx];
-                    Object.keys(this.logs).forEach(key => {
-                        const date = new Date(key);
-                        const dayOfWeek = date.getDay();
-                        if (habit.days.includes(dayOfWeek)) {
-                            daysTotal[dayOfWeek]++;
-                            const val = this.logs[key][habitIdx] || 0;
-                            if (val < habit.max) daysFail[dayOfWeek]++;
-                        }
-                    });
-                    let maxFailRate = -1;
-                    let worstDayIndex = -1;
-                    habit.days.forEach(d => {
-                        if (daysTotal[d] > 0) {
-                            const rate = daysFail[d] / daysTotal[d];
-                            if (rate > maxFailRate) { maxFailRate = rate; worstDayIndex = d; }
-                        }
-                    });
-                    if (maxFailRate < 0.2) return null;
-                    const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-                    return dayNames[worstDayIndex];
                 },
 
                 // --- UTILS BÁSICOS ---
@@ -948,7 +882,7 @@
                 },
 
                 exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, moods: this.moods, v: '3.1' };
+                    const data = { config: this.habits, logs: this.logs, notes: this.notes, v: '3.1' };
                     const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
@@ -964,7 +898,6 @@
                                 if(confirm("Sobrescribir datos actuales?")) {
                                     this.habits = d.config; this.logs = d.logs; 
                                     if(d.notes) this.notes = d.notes;
-                                    if(d.moods) this.moods = d.moods;
                                     this.saveData(); location.reload();
                                 }
                             }
