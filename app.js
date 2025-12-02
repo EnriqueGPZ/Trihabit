@@ -108,6 +108,7 @@ function app() {
         async pushDataCloud() {
             if (!this.user) return;
             this.savedMsg = false;
+            // Solo enviamos lo básico
             const payload = {
                 user_id: this.user.id,
                 habits: this.habits,
