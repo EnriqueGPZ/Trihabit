@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.0 - Cloud & AI Edition</title>
+    <title>TriHabit v3.1 - Fixed</title>
     
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,10 @@
         // --- CONFIGURACIÓN SUPABASE ---
         const SUPABASE_URL = 'https://accwhbzrdwvlofxcdvix.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjY3doYnpyZHd2bG9meGNkdml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2NzMyODcsImV4cCI6MjA4MDI0OTI4N30.BFXlKhOf5r0JFp8sjoPZ6LbeDqyrdYO7KrXKjE2pY7o';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // CORRECCIÓN: Usamos 'sb' en lugar de 'supabase' para evitar el conflicto de nombres
+        // Usamos window.supabase para acceder explícitamente a la librería global
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         tailwind.config = {
             theme: {
@@ -81,7 +84,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.0 Cloud</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.1 Cloud</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -590,7 +593,7 @@
                 habits: [],
                 logs: {},
                 notes: {},
-                moods: {}, // NUEVO: Estado de ánimo
+                moods: {}, 
                 tempHabits: [],
                 currentDate: new Date(),
                 selectedDay: null,
@@ -645,14 +648,14 @@
                     this.initAuth();
                 },
                 
-                // --- AUTH Y SYNC SUPABASE ---
+                // --- AUTH Y SYNC SUPABASE (VARIABLES ACTUALIZADAS A 'sb') ---
                 async initAuth() {
-                    const { data: { session } } = await supabase.auth.getSession();
+                    const { data: { session } } = await sb.auth.getSession();
                     if (session) {
                         this.user = session.user;
                         await this.pullDataCloud();
                     }
-                    supabase.auth.onAuthStateChange(async (_event, session) => {
+                    sb.auth.onAuthStateChange(async (_event, session) => {
                         this.user = session ? session.user : null;
                         if(this.user) await this.pullDataCloud();
                     });
@@ -662,12 +665,12 @@
                     try {
                         let result;
                         if (type === 'signup') {
-                            result = await supabase.auth.signUp({ email: this.authEmail, password: this.authPass });
+                            result = await sb.auth.signUp({ email: this.authEmail, password: this.authPass });
                             if (result.error) throw result.error;
                             this.authMsg = '¡Cuenta creada! Revisa tu email o entra.';
                             if(result.data.user) await this.handleAuth('signin');
                         } else {
-                            result = await supabase.auth.signInWithPassword({ email: this.authEmail, password: this.authPass });
+                            result = await sb.auth.signInWithPassword({ email: this.authEmail, password: this.authPass });
                             if (result.error) throw result.error;
                             this.showAuthModal = false;
                             this.authMsg = '';
@@ -676,7 +679,7 @@
                 },
                 async logout() {
                     if(confirm('¿Cerrar sesión? Los datos locales se mantendrán.')) {
-                        await supabase.auth.signOut();
+                        await sb.auth.signOut();
                         this.user = null;
                     }
                 },
@@ -691,14 +694,14 @@
                         moods: this.moods || {},
                         updated_at: new Date()
                     };
-                    const { error } = await supabase.from('user_data').upsert(payload);
+                    const { error } = await sb.from('user_data').upsert(payload);
                     if (error) console.error('Error subiendo:', error);
                     else console.log('☁️ Datos sincronizados en la nube');
                 },
                 async pullDataCloud() {
                     if (!this.user) return;
                     this.isSyncing = true;
-                    const { data, error } = await supabase.from('user_data').select('*').eq('user_id', this.user.id).single();
+                    const { data, error } = await sb.from('user_data').select('*').eq('user_id', this.user.id).single();
                     if (data) {
                         this.habits = data.habits || [];
                         this.logs = data.logs || {};
@@ -945,7 +948,7 @@
                 },
 
                 exportData() {
-                    const data = { config: this.habits, logs: this.logs, notes: this.notes, moods: this.moods, v: '3.0' };
+                    const data = { config: this.habits, logs: this.logs, notes: this.notes, moods: this.moods, v: '3.1' };
                     const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = 'trihabit_backup.json'; a.click();
