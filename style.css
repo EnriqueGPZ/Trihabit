@@ -1,0 +1,58 @@
+/* Estilos base: 100dvh asegura altura real en móviles */
+body { 
+    background-color: #020617; 
+    color: #e2e8f0; 
+    -webkit-tap-highlight-color: transparent; 
+    overscroll-behavior: none; 
+    height: 100dvh; 
+    width: 100%;
+    position: fixed; 
+    overflow: hidden;
+}
+
+/* Paneles */
+.glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(148, 163, 184, 0.08); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
+.mobile-nav { background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom); }
+
+/* Sliders */
+input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #fff; margin-top: -6px; box-shadow: 0 0 10px rgba(255,255,255,0.5); transition: transform 0.1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 2px; }
+.mobile-slider::-webkit-slider-thumb { height: 28px !important; width: 28px !important; margin-top: -12px !important; box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important; }
+.mobile-slider::-webkit-slider-runnable-track { height: 4px !important; border-radius: 2px !important; }
+
+/* Scrollbars */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+[x-cloak] { display: none !important; }
+
+/* Utilidades gráficas */
+.heatmap-grid { display: grid; grid-template-rows: repeat(7, 10px); grid-auto-flow: column; gap: 3px; }
+.heatmap-labels { display: grid; grid-template-rows: repeat(7, 10px); gap: 3px; margin-right: 6px; }
+.heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background-color: rgba(255,255,255,0.05); }
+.chart-shine-container { position: relative; overflow: hidden; }
+.chart-shine-container::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%); transform: skewX(-20deg); animation: shine-scan 6s infinite ease-in-out; pointer-events: none; z-index: 10; }
+@keyframes shine-scan { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+/* Drag & Drop */
+.drag-ghost { opacity: 0.5; background: #1e293b; }
+
+/* Estilos Guia */
+.guide-card { transition: all 0.3s ease; position: relative; overflow: hidden; }
+.guide-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3); border-color: rgba(99, 102, 241, 0.3); }
+.guide-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--card-color, #6366f1), transparent); opacity: 0.7; }
+
+.tip-bullet { position: relative; padding-left: 1.5rem; margin-left: 0.5rem; color: #cbd5e1; font-size: 0.875rem; line-height: 1.625; }
+.tip-bullet::before { content: '•'; position: absolute; left: 0; color: var(--card-color, #6366f1); font-weight: bold; font-size: 1.2em; top: -1px; }
+
+.manual-step { position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+.manual-step:last-child { margin-bottom: 0; }
+.manual-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #6366f1; }
+
+.scroll-touch { -webkit-overflow-scrolling: touch; }
