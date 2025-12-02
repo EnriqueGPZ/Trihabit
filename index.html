@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.8 - Logic Fix</title>
+    <title>TriHabit v3.9 - Final Manual</title>
     
     <!-- Hoja de Estilos -->
     <link rel="stylesheet" href="style.css">
@@ -44,7 +44,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.8</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.9</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- TARJETA REGISTRO PC (Mantiene diseño amplio) -->
+            <!-- TARJETA REGISTRO PC -->
             <div x-show="selectedDay" x-transition:enter="transition ease-out duration-300" class="hidden lg:block glass-panel p-6 border-l-4 relative overflow-hidden group mb-6 shrink-0" :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
                  <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
                  <div class="flex justify-between items-center mb-6">
@@ -188,8 +188,7 @@
             <!-- Lista de Hábitos Compacta -->
             <div class="px-3 space-y-2">
                 <template x-for="(habit, idx) in habits" :key="'mob-'+idx">
-                    <!-- FILTRO EXACTO A PC: Se muestra si habit.active es true. 
-                         Si no toca hoy, se diferencia visualmente con opacidad y etiqueta "Extra" -->
+                    <!-- FILTRO: Mostrar todos los activos. Diferenciar con estilo si es Extra. -->
                     <div x-show="habit.active" 
                          class="glass-panel p-3 active:scale-[0.99] transition-transform duration-200 border-l-2"
                          :style="`border-left-color: ${habit.color}`"
@@ -198,7 +197,7 @@
                         <div class="flex justify-between items-center mb-2">
                             <div class="flex items-center gap-2 overflow-hidden">
                                 <h3 class="font-bold text-sm text-white truncate" x-text="habit.name"></h3>
-                                <!-- Etiqueta EXTRA si hoy no toca -->
+                                <!-- Etiqueta EXTRA -->
                                 <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-1.5 rounded uppercase font-bold shrink-0 flex items-center gap-1"><i class="ph-fill ph-star"></i> Extra</span>
                             </div>
                             <div class="text-right shrink-0">
@@ -375,14 +374,18 @@
                         <p class="text-xs text-slate-300 leading-relaxed mb-3">Tus datos <strong>NUNCA</strong> salen de tu dispositivo (salvo que uses la Nube). Se guardan en local.</p>
                         <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial, pierdes los datos locales. ¡Sincroniza con la nube!</div>
                     </div>
+                    
+                    <!-- NUEVA SECCIÓN DE NUBE -->
                     <div class="glass-panel p-5 border-l-4 border-indigo-500">
-                        <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-sliders text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Configuración</h3></div>
-                        <ul class="space-y-2 text-xs text-slate-300">
-                            <li class="flex gap-2"><i class="ph-bold ph-gear"></i> Pulsa el engranaje arriba a la derecha.</li>
-                            <li class="flex gap-2"><i class="ph-bold ph-plus"></i> Añade hábitos, cambia colores y metas.</li>
-                            <li class="flex gap-2"><i class="ph-bold ph-calendar"></i> <strong>Días Activos:</strong> Elige qué días es obligatorio.</li>
-                        </ul>
+                        <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-cloud-check text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Sincronización Nube</h3></div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            1. Pulsa el icono de la Nube arriba.<br>
+                            2. Introduce tu email y una contraseña segura.<br>
+                            3. Dale a <strong>Registrarse</strong> (No requiere confirmar email).<br>
+                            <span class="text-yellow-400 font-bold block mt-2">¡IMPORTANTE! Memoriza tu contraseña. No hay opción de recuperación en esta versión.</span>
+                        </p>
                     </div>
+
                     <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
                         <div class="flex items-center gap-2 mb-4 text-purple-400"><i class="ph-fill ph-path text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Tu Flujo Diario</h3></div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
