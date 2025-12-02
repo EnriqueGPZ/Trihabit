@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.3 - Cloud Edition</title>
+    <title>TriHabit v3.4 - Mobile UX</title>
     
-    <!-- Hoja de Estilos Propia -->
+    <!-- Hoja de Estilos -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Librerías Externas -->
+    <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -46,14 +44,13 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.3</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.4</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-4">
             <div x-show="savedMsg" x-transition.opacity class="flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-900/30 px-3 py-1 rounded-full border border-emerald-500/20">
                 <i class="ph-bold ph-check"></i> <span class="hidden xs:inline">Guardado</span>
             </div>
-            <!-- Botón Nube -->
             <button @click="user ? logout() : showAuthModal = true" 
                     class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/10"
                     :class="user ? 'text-emerald-400 bg-emerald-900/20 border border-emerald-500/30' : 'text-slate-400'">
@@ -68,7 +65,7 @@
     <!-- MAIN APP -->
     <main class="absolute top-16 bottom-0 w-full flex flex-col lg:flex-row overflow-hidden bg-[#020617]">
         
-        <!-- COLUMNA IZQUIERDA: CALENDARIO -->
+        <!-- CALENDARIO -->
         <section class="flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 lg:flex lg:flex-[0.4] w-full h-full overflow-y-auto scroll-touch custom-scrollbar pb-24 lg:pb-6"
                  :class="mobileTab === 'calendar' ? 'flex' : 'hidden lg:flex'">
             
@@ -237,7 +234,7 @@
             </div>
         </section>
 
-        <!-- COLUMNA DERECHA: ESTADÍSTICAS -->
+        <!-- ESTADÍSTICAS -->
         <section class="flex-col p-6 bg-slate-950 relative lg:flex lg:flex-[0.6] lg:border-l lg:border-slate-800 w-full h-full overflow-y-auto scroll-touch custom-scrollbar pb-24 lg:pb-6"
                  :class="mobileTab === 'stats' ? 'flex' : 'hidden lg:flex'" id="capture-area">
             
@@ -399,7 +396,7 @@
                 </div>
             </div>
 
-            <!-- VISTA 5: ESTRATEGIAS (AQUÍ ESTÁN) -->
+            <!-- VISTA 5: ESTRATEGIAS -->
             <div x-show="viewMode === 'guide'" x-transition.opacity class="flex flex-col">
                 <div class="glass-panel p-6 mb-6 bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20">
                     <div class="flex items-start gap-4">
@@ -476,6 +473,13 @@
         </button>
     </nav>
 
+    <!-- BOTÓN FLOTANTE MÓVIL (NUEVO) -->
+    <button @click="openSettings()" 
+            class="lg:hidden fixed bottom-[70px] right-4 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3 rounded-full shadow-lg shadow-indigo-900/50 flex items-center gap-2 z-40 transition-transform active:scale-95 border border-indigo-400/50">
+        <i class="ph-bold ph-plus-circle text-2xl"></i>
+        <span class="font-bold text-sm">Añadir Reto</span>
+    </button>
+
     <!-- MODAL AUTH -->
     <div x-show="showAuthModal" style="display:none" class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center backdrop-blur-sm px-4" x-transition.opacity>
         <div class="glass-panel p-8 w-full max-w-sm text-center relative border border-slate-700">
@@ -505,7 +509,16 @@
                 <button @click="closeSettings()" aria-label="Cerrar" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
             </div>
             <p class="text-xs text-slate-500 mb-4 shrink-0"><i class="ph-bold ph-arrows-down-up"></i> Arrastra para reordenar. Selecciona los días.</p>
+            
+            <!-- LISTA DE HÁBITOS -->
             <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar" id="habits-list">
+                
+                <!-- BOTÓN CREAR NUEVO (DENTRO DEL MODAL) -->
+                <button @click="addHabit()" class="w-full py-3 mb-4 rounded-xl border border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-indigo-500 hover:bg-slate-800/50 transition flex items-center justify-center gap-2 group">
+                    <div class="w-6 h-6 rounded-full bg-slate-700 group-hover:bg-indigo-600 flex items-center justify-center text-white transition"><i class="ph-bold ph-plus"></i></div>
+                    <span class="font-bold text-sm">Crear Nuevo Hábito</span>
+                </button>
+
                 <template x-for="(h, i) in tempHabits" :key="h.id">
                     <div class="habit-item flex flex-col gap-2 bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 transition-colors hover:bg-slate-800/80 group" :data-id="h.id" :class="!h.active ? 'opacity-50 grayscale' : ''">
                         <div class="flex gap-3 items-center">
@@ -523,6 +536,8 @@
                             <div class="flex-1">
                                 <input type="text" x-model="h.name" class="w-full bg-transparent text-white font-bold border-b border-slate-600 focus:border-indigo-500 focus:border-b-2 outline-none text-sm py-1 transition-colors">
                             </div>
+                            <!-- Botón borrar hábito -->
+                            <button @click="if(confirm('¿Borrar este hábito?')) tempHabits.splice(i, 1)" class="text-slate-600 hover:text-red-500 p-1"><i class="ph-bold ph-trash"></i></button>
                         </div>
                         <div class="flex flex-col gap-2 pl-10" x-show="h.active">
                             <div class="flex gap-3 items-end">
@@ -554,6 +569,7 @@
                     </div>
                 </template>
             </div>
+            
             <div class="mt-4 pt-4 border-t border-slate-800 shrink-0">
                 <div class="flex gap-2 mb-4">
                     <button @click="exportData()" class="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 transition"><i class="ph-bold ph-download-simple"></i> Exportar</button>
