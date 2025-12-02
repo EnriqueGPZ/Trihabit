@@ -70,7 +70,7 @@ function app() {
             this.initAuth();
         },
         
-        // --- AUTH Y SYNC SUPABASE (VARIABLES 'sb') ---
+        // --- AUTH Y SYNC SUPABASE ---
         async initAuth() {
             const { data: { session } } = await sb.auth.getSession();
             if (session) {
@@ -108,7 +108,6 @@ function app() {
         async pushDataCloud() {
             if (!this.user) return;
             this.savedMsg = false;
-            // Solo enviamos lo básico (sin moods)
             const payload = {
                 user_id: this.user.id,
                 habits: this.habits,
@@ -128,7 +127,6 @@ function app() {
                 this.habits = data.habits || [];
                 this.logs = data.logs || {};
                 this.notes = data.notes || {};
-                // Ignoramos moods al bajar si la DB los tuviera
                 localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
                 localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
                 localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
@@ -155,7 +153,6 @@ function app() {
             localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
             this.savedMsg = true;
             setTimeout(() => this.savedMsg = false, 1500);
-            // Push Cloud Debounced
             if (this.user) {
                 clearTimeout(this.saveTimeout);
                 this.saveTimeout = setTimeout(() => { this.pushDataCloud(); }, 1000);
@@ -276,6 +273,25 @@ function app() {
         
         closeSettings() { this.showSettings = false; if (this.sortableInstance) this.sortableInstance.destroy(); },
 
+        // --- NUEVA FUNCIÓN AÑADIR HÁBITO ---
+        addHabit() {
+            this.tempHabits.push({
+                id: 'h-' + Date.now(),
+                name: 'Nuevo Hábito',
+                max: 1,
+                unit: 'vez',
+                color: this.palette[Math.floor(Math.random() * this.palette.length)],
+                active: true,
+                type: 'check',
+                days: [0,1,2,3,4,5,6]
+            });
+            // Hacemos scroll al final de la lista para ver el nuevo hábito
+            this.$nextTick(() => {
+                const list = document.getElementById('habits-list');
+                if(list) list.scrollTop = list.scrollHeight;
+            });
+        },
+
         initSortable() {
             const el = document.getElementById('habits-list');
             if (!el) return;
@@ -285,8 +301,8 @@ function app() {
                 ghostClass: 'drag-ghost',
                 chosenClass: 'drag-chosen',
                 onEnd: (evt) => {
-                    const movedItem = this.tempHabits.splice(evt.oldIndex, 1)[0];
-                    this.tempHabits.splice(evt.newIndex, 0, movedItem);
+                    const movedItem = this.tempHabits.splice(evt.oldIndex - 1, 1)[0]; // -1 porque el botón de añadir está primero
+                    this.tempHabits.splice(evt.newIndex - 1, 0, movedItem);
                 }
             });
         },
@@ -509,7 +525,10 @@ function app() {
                             data: vals, borderColor: h.color, borderWidth: 2,
                             backgroundColor: (c) => {
                                 const g = c.chart.ctx.createLinearGradient(0,0,0,200);
-                                g.addColorStop(0, h.color+'60'); g.addColorStop(1, h.color+'00'); return g;
+                                const color = h.color || '#6366f1';
+                                g.addColorStop(0, color+'60'); 
+                                g.addColorStop(1, color+'00'); 
+                                return g;
                             },
                             fill: true, pointRadius: 0, pointHitRadius: 10
                         }]
