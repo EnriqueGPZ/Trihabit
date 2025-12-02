@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.5 - Compact Mobile</title>
+    <title>TriHabit v3.7 - Extras & Header Fix</title>
     
     <!-- Hoja de Estilos -->
     <link rel="stylesheet" href="style.css">
@@ -44,7 +44,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.5</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.7</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -52,20 +52,20 @@
                 <i class="ph-bold ph-check"></i> <span>Guardado</span>
             </div>
             
-            <!-- BOTÓN AÑADIR (Solo Móvil - Visible en Header) -->
-            <button @click="addHabit(); openSettings()" class="lg:hidden w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20 active:scale-95 transition">
-                <i class="ph-bold ph-plus"></i>
-            </button>
-
-            <!-- Botón Nube -->
+            <!-- Botón Nube (Visible siempre) -->
             <button @click="user ? logout() : showAuthModal = true" 
                     class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/10"
                     :class="user ? 'text-emerald-400 bg-emerald-900/20 border border-emerald-500/30' : 'text-slate-400'">
                 <i class="ph-bold" :class="user ? 'ph-user-check' : 'ph-cloud-slash'"></i>
             </button>
+
+            <!-- BOTÓN AÑADIR (+) (SOLO MÓVIL - Visible < lg) -->
+            <button @click="addHabit(); openSettings()" class="lg:hidden w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20 active:scale-95 transition border border-indigo-400/50">
+                <i class="ph-bold ph-plus"></i>
+            </button>
             
-            <!-- Botón Configuración -->
-            <button @click="openSettings()" aria-label="Configurar" class="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
+            <!-- BOTÓN ENGRANAJE (SOLO PC - Visible >= lg) -->
+            <button @click="openSettings()" aria-label="Configurar" class="hidden lg:flex w-9 h-9 rounded-full hover:bg-white/10 items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
                 <i class="ph ph-gear text-xl"></i>
             </button>
         </div>
@@ -74,7 +74,7 @@
     <!-- MAIN APP -->
     <main class="absolute top-16 bottom-0 w-full flex flex-col lg:flex-row overflow-hidden bg-[#020617]">
         
-        <!-- CALENDARIO (Solo visible si mobileTab es calendar) -->
+        <!-- COLUMNA IZQUIERDA: CALENDARIO -->
         <section class="flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 lg:flex lg:flex-[0.4] w-full h-full overflow-y-auto scroll-touch custom-scrollbar pb-24 lg:pb-6"
                  :class="mobileTab === 'calendar' ? 'flex' : 'hidden lg:flex'">
             
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- TARJETA REGISTRO PC (Sin cambios importantes, solo estilos) -->
+            <!-- TARJETA REGISTRO PC (Mantiene diseño amplio) -->
             <div x-show="selectedDay" x-transition:enter="transition ease-out duration-300" class="hidden lg:block glass-panel p-6 border-l-4 relative overflow-hidden group mb-6 shrink-0" :style="`border-left-color: ${habits.find(h=>h.active)?.color || '#333'}`">
                  <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl -z-10"></div>
                  <div class="flex justify-between items-center mb-6">
@@ -142,7 +142,6 @@
                                     </template>
                                 </div>
                             </div>
-                            <!-- Controles PC (iguales) -->
                             <div x-show="habit.type !== 'check'" class="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700/50">
                                 <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" class="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-white flex items-center justify-center active:scale-95 transition"><i class="ph-bold ph-minus"></i></button>
                                 <div class="relative flex-1 h-2 bg-slate-900 rounded-full overflow-hidden">
@@ -169,7 +168,7 @@
             </div>
         </section>
 
-        <!-- SECCIÓN MÓVIL: HOY (REDDISEÑADA COMPACTA) -->
+        <!-- SECCIÓN MÓVIL: HOY (COMPACTA Y LIMPIA) -->
         <section class="flex flex-col w-full h-full bg-slate-950 overflow-y-auto scroll-touch custom-scrollbar relative lg:hidden pb-24"
                  x-show="mobileTab === 'today'">
             
@@ -189,12 +188,17 @@
             <!-- Lista de Hábitos Compacta -->
             <div class="px-3 space-y-2">
                 <template x-for="(habit, idx) in habits" :key="'mob-'+idx">
-                    <!-- FILTRO: Solo mostrar si activo globalmente Y si toca hoy -->
-                    <div x-show="habit.active && isHabitActiveToday(habit)" class="glass-panel p-3 active:scale-[0.99] transition-transform duration-200 border-l-2"
-                         :style="`border-left-color: ${habit.color}`">
+                    <!-- FILTRO CORREGIDO: Muestra TODOS los activos en configuración (aunque no toque hoy) -->
+                    <div x-show="habit.active === true" class="glass-panel p-3 active:scale-[0.99] transition-transform duration-200 border-l-2"
+                         :style="`border-left-color: ${habit.color}`"
+                         :class="!isHabitActiveToday(habit) ? 'opacity-70' : ''">
                         
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-sm text-white flex items-center gap-2 truncate" x-text="habit.name"></h3>
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <h3 class="font-bold text-sm text-white truncate" x-text="habit.name"></h3>
+                                <!-- ETIQUETA EXTRA: Visible si hoy no toca pero el usuario quiere hacerlo -->
+                                <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-1.5 rounded uppercase font-bold shrink-0">Extra</span>
+                            </div>
                             <div class="text-right shrink-0">
                                 <span class="text-lg font-black" :style="`color: ${getVal(selectedDay, idx) >= habit.max ? habit.color : '#64748b'}`" x-text="getVal(selectedDay, idx)"></span>
                                 <span class="text-[10px] text-slate-600 font-bold" x-show="habit.type !== 'check'">/ <span x-text="habit.max"></span></span>
@@ -219,17 +223,11 @@
                              <div class="absolute inset-0 transition-opacity duration-300" :style="`background: ${habit.color}; opacity: ${getVal(selectedDay, idx) >= 1 ? 0.2 : 0}`"></div>
                              <div class="flex items-center gap-2 relative z-10">
                                  <i class="ph-fill text-lg" :class="getVal(selectedDay, idx) >= 1 ? 'ph-check-circle text-white' : 'ph-circle text-slate-500'"></i>
-                                 <span class="font-bold text-xs uppercase tracking-wide" :class="getVal(selectedDay, idx) >= 1 ? 'text-white' : 'text-slate-400'" x-text="getVal(selectedDay, idx) >= 1 ? 'HECHO' : 'MARCAR'"></span>
+                                 <span class="font-bold text-xs uppercase tracking-wide" :class="getVal(selectedDay, idx) >= 1 ? 'text-white' : 'text-slate-400'" x-text="getVal(selectedDay, idx) >= 1 ? 'HECHO' : (isHabitActiveToday(habit) ? 'MARCAR' : 'EXTRA')"></span>
                              </div>
                         </div>
                     </div>
                 </template>
-
-                <!-- Mensaje si no hay hábitos hoy -->
-                <div x-show="habits.filter(h => h.active && isHabitActiveToday(h)).length === 0" class="text-center py-10 text-slate-500 text-sm">
-                    <i class="ph-bold ph-coffee text-3xl mb-2 block text-slate-600"></i>
-                    No tienes hábitos programados para hoy.
-                </div>
 
                 <div class="mt-4 pt-4 border-t border-slate-800/50">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="ph-bold ph-notebook text-indigo-400"></i> Notas</label>
@@ -248,7 +246,7 @@
                         <i class="ph-bold ph-chart-line-up"></i> Progreso Mes
                     </button>
                     <button @click="switchView('year')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'year' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
-                        <i class="ph-bold ph-calendar-blank"></i> Anual
+                        <i class="ph-bold ph-calendar-blank"></i> Resumen Anual
                     </button>
                     <button @click="switchView('insights')" class="text-sm font-bold flex items-center gap-2 pb-1 border-b-2 transition whitespace-nowrap" :class="viewMode === 'insights' ? 'text-white border-indigo-500' : 'text-slate-500 border-transparent hover:text-slate-300'">
                         <i class="ph-bold ph-trophy"></i> Logros
