@@ -82,6 +82,7 @@ function app() {
                 if(this.user) await this.pullDataCloud();
             });
         },
+
         async handleAuth(type) {
             this.authMsg = 'Procesando...';
             try {
@@ -99,12 +100,14 @@ function app() {
                 }
             } catch (error) { this.authMsg = error.message; }
         },
+
         async logout() {
             if(confirm('¿Cerrar sesión? Los datos locales se mantendrán.')) {
                 await sb.auth.signOut();
                 this.user = null;
             }
         },
+
         async pushDataCloud() {
             if (!this.user) return;
             this.savedMsg = false;
@@ -120,19 +123,51 @@ function app() {
             if (error) console.error('Error subiendo:', error);
             else console.log('☁️ Datos sincronizados en la nube');
         },
+
+        // --- LÓGICA INTELIGENTE DE CONFLICTOS ---
         async pullDataCloud() {
             if (!this.user) return;
             this.isSyncing = true;
+            
+            // 1. Consultar Nube
             const { data, error } = await sb.from('user_data').select('*').eq('user_id', this.user.id).single();
+
             if (data) {
-                this.habits = data.habits || [];
-                this.logs = data.logs || {};
-                this.notes = data.notes || {};
-                localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
-                localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
-                localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
-                this.forceRedraw();
-                console.log('☁️ Datos descargados de la nube');
+                // 2. ¿Tengo datos locales que merezca la pena salvar?
+                // Comprobamos si hay registros en los logs
+                const hasLocalData = Object.keys(this.logs).length > 0;
+                
+                let shouldDownload = true;
+
+                // 3. Si hay datos locales Y datos en la nube, preguntamos
+                if (hasLocalData) {
+                    shouldDownload = confirm(
+                        "⚠️ CONFLICTO DE DATOS ENCONTRADO\n\n" +
+                        "Esta cuenta tiene una copia de seguridad en la Nube.\n" +
+                        "Pero también tienes datos guardados en este dispositivo.\n\n" +
+                        "¿Qué quieres hacer?\n\n" +
+                        "• ACEPTAR: Descargar la Nube (Borrará lo que tienes en este móvil).\n" +
+                        "• CANCELAR: Mantener este móvil (Sobrescribirá la copia de la Nube)."
+                    );
+                }
+
+                if (shouldDownload) {
+                    // Opción A: La nube gana
+                    this.habits = data.habits || [];
+                    this.logs = data.logs || {};
+                    this.notes = data.notes || {};
+                    
+                    localStorage.setItem('trihabit_config_v17', JSON.stringify(this.habits));
+                    localStorage.setItem('trihabit_logs_v17', JSON.stringify(this.logs));
+                    localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
+                    
+                    this.forceRedraw();
+                    console.log('☁️ Datos descargados de la nube (Local sobrescrito)');
+                } else {
+                    // Opción B: El móvil gana
+                    console.log('✋ Preferencia local. Subiendo a la nube para actualizarla...');
+                    this.pushDataCloud();
+                }
             }
             this.isSyncing = false;
         },
@@ -274,7 +309,7 @@ function app() {
         
         closeSettings() { this.showSettings = false; if (this.sortableInstance) this.sortableInstance.destroy(); },
 
-        // --- NUEVA FUNCIÓN AÑADIR HÁBITO ---
+        // --- FUNCIÓN AÑADIR HÁBITO ---
         addHabit() {
             this.tempHabits.push({
                 id: 'h-' + Date.now(),
@@ -286,7 +321,7 @@ function app() {
                 type: 'check',
                 days: [0,1,2,3,4,5,6]
             });
-            // Hacemos scroll al final de la lista para ver el nuevo hábito
+            // Hacemos scroll al final de la lista
             this.$nextTick(() => {
                 const list = document.getElementById('habits-list');
                 if(list) list.scrollTop = list.scrollHeight;
@@ -302,7 +337,7 @@ function app() {
                 ghostClass: 'drag-ghost',
                 chosenClass: 'drag-chosen',
                 onEnd: (evt) => {
-                    const movedItem = this.tempHabits.splice(evt.oldIndex - 1, 1)[0]; // -1 porque el botón de añadir está primero
+                    const movedItem = this.tempHabits.splice(evt.oldIndex - 1, 1)[0]; 
                     this.tempHabits.splice(evt.newIndex - 1, 0, movedItem);
                 }
             });
