@@ -31,6 +31,7 @@ function app() {
         authMsg: '',
         isSyncing: false,
         saveTimeout: null,
+        isAskingUser: false, // Semáforo para evitar doble ventana
 
         get daysInMonth() { return new Date(this.year, this.month + 1, 0).getDate(); },
         get blanks() { 
@@ -72,14 +73,15 @@ function app() {
         
         // --- AUTH Y SYNC SUPABASE ---
         async initAuth() {
-            const { data: { session } } = await sb.auth.getSession();
-            if (session) {
-                this.user = session.user;
-                await this.pullDataCloud();
-            }
-            sb.auth.onAuthStateChange(async (_event, session) => {
+            // CORRECCIÓN: Usamos solo el listener para evitar doble llamada al inicio
+            sb.auth.onAuthStateChange(async (event, session) => {
+                const prevUser = this.user;
                 this.user = session ? session.user : null;
-                if(this.user) await this.pullDataCloud();
+                
+                // Solo descargamos si hay usuario y (es el inicio o acaba de loguearse)
+                if(this.user && (!prevUser || event === 'SIGNED_IN')) {
+                    await this.pullDataCloud();
+                }
             });
         },
 
@@ -124,9 +126,9 @@ function app() {
             else console.log('☁️ Datos sincronizados en la nube');
         },
 
-        // --- LÓGICA INTELIGENTE DE CONFLICTOS ---
+        // --- LÓGICA INTELIGENTE DE CONFLICTOS CORREGIDA ---
         async pullDataCloud() {
-            if (!this.user) return;
+            if (!this.user || this.isAskingUser) return; // Evita reentradas
             this.isSyncing = true;
             
             // 1. Consultar Nube
@@ -134,21 +136,21 @@ function app() {
 
             if (data) {
                 // 2. ¿Tengo datos locales que merezca la pena salvar?
-                // Comprobamos si hay registros en los logs
                 const hasLocalData = Object.keys(this.logs).length > 0;
                 
                 let shouldDownload = true;
 
                 // 3. Si hay datos locales Y datos en la nube, preguntamos
                 if (hasLocalData) {
+                    this.isAskingUser = true; // Bloqueamos otras llamadas
                     shouldDownload = confirm(
-                        "⚠️ CONFLICTO DE DATOS ENCONTRADO\n\n" +
-                        "Esta cuenta tiene una copia de seguridad en la Nube.\n" +
-                        "Pero también tienes datos guardados en este dispositivo.\n\n" +
-                        "¿Qué quieres hacer?\n\n" +
-                        "• ACEPTAR: Descargar la Nube (Borrará lo que tienes en este móvil).\n" +
-                        "• CANCELAR: Mantener este móvil (Sobrescribirá la copia de la Nube)."
+                        "⚠️ CONFLICTO DE DATOS DETECTADO\n\n" +
+                        "Hay datos guardados en tu Nube, pero también tienes datos en este navegador.\n\n" +
+                        "¿Qué deseas hacer?\n\n" +
+                        "• ACEPTAR: Descargar los datos de la Nube (Recomendado si usas varios dispositivos para no perder progreso global).\n" +
+                        "• CANCELAR: Usar los datos de este Navegador (Sobrescribirá lo que hay en la nube)."
                     );
+                    this.isAskingUser = false; // Liberamos
                 }
 
                 if (shouldDownload) {
@@ -164,7 +166,7 @@ function app() {
                     this.forceRedraw();
                     console.log('☁️ Datos descargados de la nube (Local sobrescrito)');
                 } else {
-                    // Opción B: El móvil gana
+                    // Opción B: El navegador gana
                     console.log('✋ Preferencia local. Subiendo a la nube para actualizarla...');
                     this.pushDataCloud();
                 }
