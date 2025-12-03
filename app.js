@@ -73,14 +73,23 @@ function app() {
         
         // --- AUTH Y SYNC SUPABASE ---
         async initAuth() {
-            // CORRECCIÓN: Usamos solo el listener para evitar doble llamada al inicio
+            // Obtenemos sesión inicial sin disparar eventos extra
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                this.user = session.user;
+                // Si hay sesión inicial, intentamos bajar datos una sola vez
+                await this.pullDataCloud();
+            }
+
+            // Escuchamos cambios (Login explícito o Logout)
             sb.auth.onAuthStateChange(async (event, session) => {
-                const prevUser = this.user;
-                this.user = session ? session.user : null;
-                
-                // Solo descargamos si hay usuario y (es el inicio o acaba de loguearse)
-                if(this.user && (!prevUser || event === 'SIGNED_IN')) {
+                // Solo reaccionamos si el evento es SIGNED_IN (login) o SIGNED_OUT (logout)
+                // Ignoramos INITIAL_SESSION para evitar duplicidad con el bloque de arriba
+                if (event === 'SIGNED_IN' && session) {
+                    this.user = session.user;
                     await this.pullDataCloud();
+                } else if (event === 'SIGNED_OUT') {
+                    this.user = null;
                 }
             });
         },
@@ -107,13 +116,13 @@ function app() {
             if(confirm('¿Cerrar sesión? Los datos locales se mantendrán.')) {
                 await sb.auth.signOut();
                 this.user = null;
+                location.reload(); // Recargar para limpiar estados
             }
         },
 
         async pushDataCloud() {
             if (!this.user) return;
             this.savedMsg = false;
-            // Solo enviamos lo básico
             const payload = {
                 user_id: this.user.id,
                 habits: this.habits,
@@ -126,35 +135,37 @@ function app() {
             else console.log('☁️ Datos sincronizados en la nube');
         },
 
-        // --- LÓGICA INTELIGENTE DE CONFLICTOS CORREGIDA ---
+        // --- LÓGICA INTELIGENTE DE CONFLICTOS ---
         async pullDataCloud() {
-            if (!this.user || this.isAskingUser) return; // Evita reentradas
-            this.isSyncing = true;
+            if (!this.user || this.isAskingUser) return;
             
             // 1. Consultar Nube
             const { data, error } = await sb.from('user_data').select('*').eq('user_id', this.user.id).single();
 
             if (data) {
-                // 2. ¿Tengo datos locales que merezca la pena salvar?
+                // 2. ¿Tengo datos locales?
                 const hasLocalData = Object.keys(this.logs).length > 0;
                 
                 let shouldDownload = true;
 
-                // 3. Si hay datos locales Y datos en la nube, preguntamos
+                // 3. Si hay conflicto, preguntamos
                 if (hasLocalData) {
-                    this.isAskingUser = true; // Bloqueamos otras llamadas
+                    this.isAskingUser = true; // Bloqueo semáforo
+                    
+                    // Pequeño timeout para asegurar que la UI se ha renderizado antes del confirm
+                    await new Promise(r => setTimeout(r, 100));
+
                     shouldDownload = confirm(
-                        "⚠️ CONFLICTO DE DATOS DETECTADO\n\n" +
-                        "Hay datos guardados en tu Nube, pero también tienes datos en este navegador.\n\n" +
-                        "¿Qué deseas hacer?\n\n" +
-                        "• ACEPTAR: Descargar los datos de la Nube (Recomendado si usas varios dispositivos para no perder progreso global).\n" +
-                        "• CANCELAR: Usar los datos de este Navegador (Sobrescribirá lo que hay en la nube)."
+                        "⚠️ CONFLICTO DE DATOS\n\n" +
+                        "Hay una copia de seguridad en tu Nube.\n" +
+                        "¿Quieres usar esa copia o mantener lo que hay en este dispositivo?\n\n" +
+                        "• ACEPTAR: Descargar Nube (Se borrarán los datos de este dispositivo).\n" +
+                        "• CANCELAR: Mantener dispositivo (Se sobrescribirán los datos de la Nube)."
                     );
-                    this.isAskingUser = false; // Liberamos
+                    this.isAskingUser = false; // Libero semáforo
                 }
 
                 if (shouldDownload) {
-                    // Opción A: La nube gana
                     this.habits = data.habits || [];
                     this.logs = data.logs || {};
                     this.notes = data.notes || {};
@@ -164,10 +175,9 @@ function app() {
                     localStorage.setItem('trihabit_notes_v17', JSON.stringify(this.notes));
                     
                     this.forceRedraw();
-                    console.log('☁️ Datos descargados de la nube (Local sobrescrito)');
+                    console.log('☁️ Datos descargados de la nube');
                 } else {
-                    // Opción B: El navegador gana
-                    console.log('✋ Preferencia local. Subiendo a la nube para actualizarla...');
+                    console.log('✋ Preferencia local. Subiendo a la nube...');
                     this.pushDataCloud();
                 }
             }
@@ -311,7 +321,6 @@ function app() {
         
         closeSettings() { this.showSettings = false; if (this.sortableInstance) this.sortableInstance.destroy(); },
 
-        // --- FUNCIÓN AÑADIR HÁBITO ---
         addHabit() {
             this.tempHabits.push({
                 id: 'h-' + Date.now(),
@@ -323,7 +332,6 @@ function app() {
                 type: 'check',
                 days: [0,1,2,3,4,5,6]
             });
-            // Hacemos scroll al final de la lista
             this.$nextTick(() => {
                 const list = document.getElementById('habits-list');
                 if(list) list.scrollTop = list.scrollHeight;
@@ -373,29 +381,17 @@ function app() {
         },
 
         destroyCharts() {
-            if (this.charts) {
-                Object.values(this.charts).forEach(c => {
-                    if(typeof c.destroy === 'function') c.destroy();
-                });
-            }
+            if (this.charts) { Object.values(this.charts).forEach(c => c.destroy && c.destroy()); }
             this.charts = {};
-            if (this.chartsYear) {
-                Object.values(this.chartsYear).forEach(c => {
-                    if(typeof c.destroy === 'function') c.destroy();
-                });
-            }
+            if (this.chartsYear) { Object.values(this.chartsYear).forEach(c => c.destroy && c.destroy()); }
             this.chartsYear = {};
         },
 
         forceRedraw() {
             this.destroyCharts();
             this.$nextTick(() => {
-                if (this.viewMode === 'stats') {
-                    this.initChart();
-                } else if (this.viewMode === 'year') {
-                    this.initYearChart(); 
-                    this.renderHeatmap();
-                }
+                if (this.viewMode === 'stats') { this.initChart(); } 
+                else if (this.viewMode === 'year') { this.initYearChart(); this.renderHeatmap(); }
             });
         },
 
@@ -404,8 +400,7 @@ function app() {
             if (!container) return;
             container.innerHTML = '';
             const today = new Date();
-            const startDate = new Date();
-            startDate.setDate(today.getDate() - 364);
+            const startDate = new Date(); startDate.setDate(today.getDate() - 364);
             while(startDate.getDay() !== 1) { startDate.setDate(startDate.getDate() - 1); }
 
             let currentDate = new Date(startDate);
@@ -415,10 +410,8 @@ function app() {
                 this.habits.forEach((h, i) => {
                     if (h.active && (h.days.includes(currentDate.getDay()) || (this.logs[dateKey] && this.logs[dateKey][i] > 0))) {
                         if (h.days.includes(currentDate.getDay())) totalPotential++;
-                        
                         const val = this.logs[dateKey] ? (this.logs[dateKey][i] || 0) : 0;
-                        if (val >= h.max) totalAchieved++;
-                        else if (val > 0) totalAchieved += (val / h.max);
+                        if (val >= h.max) totalAchieved++; else if (val > 0) totalAchieved += (val / h.max);
                     }
                 });
                 const intensity = totalPotential > 0 ? (totalAchieved / totalPotential) : 0;
@@ -430,7 +423,6 @@ function app() {
                 if (intensity > 0.5) bg = '#26a641';
                 if (intensity > 0.75) bg = '#39d353';
                 if (intensity > 1) bg = '#22c55e';
-                
                 cell.style.backgroundColor = bg;
                 cell.title = `${currentDate.toLocaleDateString()}: ${Math.round(intensity*100)}%`;
                 container.appendChild(cell);
@@ -442,51 +434,21 @@ function app() {
             const element = document.getElementById('capture-area');
             const scrollContainer = document.getElementById('stats-scroll-container');
             if (!element) return;
-            
-            const originalOverflow = element.style.overflow;
-            const originalHeight = element.style.height;
-            const originalPadding = element.style.paddingBottom;
-            
+            const originalOverflow = element.style.overflow; const originalHeight = element.style.height; const originalPadding = element.style.paddingBottom;
             let originalScrollClass = '';
-            if (scrollContainer) {
-                originalScrollClass = scrollContainer.className;
-                scrollContainer.classList.remove('overflow-x-auto');
-                scrollContainer.classList.add('flex-wrap');
-            }
-            
-            element.style.overflow = 'visible';
-            element.style.height = 'auto'; 
-            element.style.paddingBottom = '50px'; 
-            
+            if (scrollContainer) { originalScrollClass = scrollContainer.className; scrollContainer.classList.remove('overflow-x-auto'); scrollContainer.classList.add('flex-wrap'); }
+            element.style.overflow = 'visible'; element.style.height = 'auto'; element.style.paddingBottom = '50px'; 
             const flash = document.createElement('div');
             flash.className = 'fixed inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-500';
             document.body.appendChild(flash);
-            setTimeout(() => flash.classList.add('opacity-0'), 50);
-            setTimeout(() => flash.remove(), 500);
-
-            html2canvas(element, {
-                backgroundColor: '#020617',
-                scale: 2,
-                windowHeight: element.scrollHeight + 200 
-            }).then(canvas => {
-                element.style.overflow = originalOverflow;
-                element.style.height = originalHeight;
-                element.style.paddingBottom = originalPadding;
-                if (scrollContainer) {
-                    scrollContainer.className = originalScrollClass;
-                }
-
-                const link = document.createElement('a');
-                link.download = `trihabit-stats-${this.dateToKey(new Date())}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
+            setTimeout(() => flash.classList.add('opacity-0'), 50); setTimeout(() => flash.remove(), 500);
+            html2canvas(element, { backgroundColor: '#020617', scale: 2, windowHeight: element.scrollHeight + 200 }).then(canvas => {
+                element.style.overflow = originalOverflow; element.style.height = originalHeight; element.style.paddingBottom = originalPadding;
+                if (scrollContainer) scrollContainer.className = originalScrollClass;
+                const link = document.createElement('a'); link.download = `trihabit-stats-${this.dateToKey(new Date())}.png`; link.href = canvas.toDataURL(); link.click();
             }).catch(() => {
-                element.style.overflow = originalOverflow;
-                element.style.height = originalHeight;
-                element.style.paddingBottom = originalPadding;
-                if (scrollContainer) {
-                    scrollContainer.className = originalScrollClass;
-                }
+                element.style.overflow = originalOverflow; element.style.height = originalHeight; element.style.paddingBottom = originalPadding;
+                if (scrollContainer) scrollContainer.className = originalScrollClass;
             });
         },
 
@@ -602,6 +564,30 @@ function app() {
             });
         },
 
-        resetAll() { if(confirm("¿Borrar TODO? No hay vuelta atrás.")) { localStorage.clear(); location.reload(); } }
+        // --- RESETEO TOTAL (MEJORADO PARA BORRAR NUBE) ---
+        async resetAll() {
+            if (!confirm("¿Borrar TODOS los datos de este dispositivo? Esta acción no se puede deshacer.")) return;
+
+            // Si hay usuario logueado, preguntamos si quiere borrar también la nube
+            if (this.user) {
+                if (confirm("Estás conectado a la Nube. ¿Quieres borrar también tu copia de seguridad online?")) {
+                    // Borrar Nube: Subimos un objeto vacío
+                    const emptyPayload = {
+                        user_id: this.user.id,
+                        habits: [],
+                        logs: {},
+                        notes: {},
+                        updated_at: new Date()
+                    };
+                    await sb.from('user_data').upsert(emptyPayload);
+                    alert("Se han borrado los datos de la Nube y del dispositivo.");
+                } else {
+                    alert("Solo se han borrado los datos locales. Si recargas la página, volverán a bajar de la Nube.");
+                }
+            }
+
+            localStorage.clear();
+            location.reload();
+        }
     }
 }
