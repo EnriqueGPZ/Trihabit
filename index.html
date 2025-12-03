@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TriHabit v3.9 - Final Manual</title>
-    <!-- FAVICON -->
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="apple-touch-icon" href="favicon.svg">
+    <title>TriHabit v3.11 - Final Stable</title>
     
     <!-- Hoja de Estilos -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon SVG -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
 
     <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,7 +48,7 @@
                 <i class="ph-bold ph-chart-polar"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.9</span></h1>
+                <h1 class="font-bold text-lg text-white leading-tight tracking-tight">TriHabit <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-indigo-300 font-normal">v3.11</span></h1>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -55,19 +56,18 @@
                 <i class="ph-bold ph-check"></i> <span>Guardado</span>
             </div>
             
-            <!-- Botón Nube (Visible siempre) -->
             <button @click="user ? logout() : showAuthModal = true" 
                     class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/10"
                     :class="user ? 'text-emerald-400 bg-emerald-900/20 border border-emerald-500/30' : 'text-slate-400'">
                 <i class="ph-bold" :class="user ? 'ph-user-check' : 'ph-cloud-slash'"></i>
             </button>
 
-            <!-- BOTÓN AÑADIR (+) (SOLO MÓVIL) -->
+            <!-- BOTÓN AÑADIR (MÓVIL) -->
             <button @click="addHabit(); openSettings()" class="lg:hidden w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20 active:scale-95 transition border border-indigo-400/50">
                 <i class="ph-bold ph-plus"></i>
             </button>
             
-            <!-- BOTÓN ENGRANAJE (SOLO PC) -->
+            <!-- BOTÓN ENGRANAJE (PC) -->
             <button @click="openSettings()" aria-label="Configurar" class="hidden lg:flex w-9 h-9 rounded-full hover:bg-white/10 items-center justify-center transition-all duration-300 hover:rotate-90 text-slate-400 hover:text-white">
                 <i class="ph ph-gear text-xl"></i>
             </button>
@@ -77,7 +77,7 @@
     <!-- MAIN APP -->
     <main class="absolute top-16 bottom-0 w-full flex flex-col lg:flex-row overflow-hidden bg-[#020617]">
         
-        <!-- COLUMNA IZQUIERDA: CALENDARIO -->
+        <!-- CALENDARIO -->
         <section class="flex-col p-4 lg:p-6 border-r border-slate-800/50 bg-slate-900/30 lg:flex lg:flex-[0.4] w-full h-full overflow-y-auto scroll-touch custom-scrollbar pb-24 lg:pb-6"
                  :class="mobileTab === 'calendar' ? 'flex' : 'hidden lg:flex'">
             
@@ -171,7 +171,7 @@
             </div>
         </section>
 
-        <!-- SECCIÓN MÓVIL: HOY (COMPACTA Y LIMPIA) -->
+        <!-- SECCIÓN MÓVIL: HOY -->
         <section class="flex flex-col w-full h-full bg-slate-950 overflow-y-auto scroll-touch custom-scrollbar relative lg:hidden pb-24"
                  x-show="mobileTab === 'today'">
             
@@ -191,7 +191,6 @@
             <!-- Lista de Hábitos Compacta -->
             <div class="px-3 space-y-2">
                 <template x-for="(habit, idx) in habits" :key="'mob-'+idx">
-                    <!-- FILTRO: Mostrar todos los activos. Diferenciar con estilo si es Extra. -->
                     <div x-show="habit.active" 
                          class="glass-panel p-3 active:scale-[0.99] transition-transform duration-200 border-l-2"
                          :style="`border-left-color: ${habit.color}`"
@@ -200,7 +199,6 @@
                         <div class="flex justify-between items-center mb-2">
                             <div class="flex items-center gap-2 overflow-hidden">
                                 <h3 class="font-bold text-sm text-white truncate" x-text="habit.name"></h3>
-                                <!-- Etiqueta EXTRA -->
                                 <span x-show="!isHabitActiveToday(habit)" class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-1.5 rounded uppercase font-bold shrink-0 flex items-center gap-1"><i class="ph-fill ph-star"></i> Extra</span>
                             </div>
                             <div class="text-right shrink-0">
@@ -209,7 +207,6 @@
                             </div>
                         </div>
 
-                        <!-- Slider Compacto -->
                         <div x-show="habit.type !== 'check'" class="flex gap-2 items-center">
                             <button @click="updateVal(idx, getVal(selectedDay, idx) - 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center active:bg-slate-700"><i class="ph-bold ph-minus"></i></button>
                             <div class="relative flex-1 h-8 flex items-center">
@@ -221,7 +218,6 @@
                             <button @click="updateVal(idx, getVal(selectedDay, idx) + 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center active:bg-slate-700"><i class="ph-bold ph-plus"></i></button>
                         </div>
 
-                        <!-- Botón Check Compacto -->
                         <div x-show="habit.type === 'check'" @click="toggleCheck(idx)" class="h-9 w-full rounded-lg flex items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden"
                              :class="getVal(selectedDay, idx) >= 1 ? '' : 'bg-slate-800 border border-slate-700/50'">
                              <div class="absolute inset-0 transition-opacity duration-300" :style="`background: ${habit.color}; opacity: ${getVal(selectedDay, idx) >= 1 ? 0.2 : 0}`"></div>
@@ -233,7 +229,6 @@
                     </div>
                 </template>
 
-                <!-- Mensaje si no hay hábitos ACTIVOS en total -->
                 <div x-show="habits.filter(h => h.active).length === 0" class="text-center py-10 text-slate-500 text-sm">
                     <i class="ph-bold ph-plus-circle text-3xl mb-2 block text-indigo-500"></i>
                     No tienes retos activos.<br>Pulsa el botón <strong>+</strong> arriba para crear uno.
@@ -378,15 +373,14 @@
                         <div class="bg-slate-900/60 p-3 rounded-lg text-[10px] text-slate-400 font-mono"><i class="ph-bold ph-warning text-yellow-500"></i> Si borras el historial, pierdes los datos locales. ¡Sincroniza con la nube!</div>
                     </div>
                     
-                    <!-- NUEVA SECCIÓN DE NUBE -->
-                    <div class="glass-panel p-5 border-l-4 border-indigo-500">
-                        <div class="flex items-center gap-2 mb-3 text-indigo-400"><i class="ph-fill ph-cloud-check text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Sincronización Nube</h3></div>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                            1. Pulsa el icono de la Nube arriba.<br>
-                            2. Introduce tu email y una contraseña segura.<br>
-                            3. Dale a <strong>Registrarse</strong> (No requiere confirmar email).<br>
-                            <span class="text-yellow-400 font-bold block mt-2">¡IMPORTANTE! Memoriza tu contraseña. No hay opción de recuperación en esta versión.</span>
-                        </p>
+                    <!-- SECCIÓN BORRADO -->
+                    <div class="glass-panel p-5 border-l-4 border-red-500">
+                        <div class="flex items-center gap-2 mb-3 text-red-400"><i class="ph-fill ph-trash text-xl"></i><h3 class="font-bold text-white text-sm uppercase">Gestión de Datos y Borrado</h3></div>
+                        <div class="text-xs text-slate-300 space-y-3">
+                            <p><strong>Para borrar SOLO los datos locales:</strong><br>1. Cierra sesión (si estás conectado).<br>2. Pulsa en Configuración (engranaje) -> Reset.</p>
+                            <p><strong>Para borrar TODO (Nube + Local):</strong><br>1. Inicia sesión en la Nube.<br>2. Pulsa en Configuración -> Reset.<br>3. Acepta borrar también la copia de la nube.</p>
+                            <p class="text-[10px] text-slate-500 italic">* Prioriza siempre la nube si usas varios dispositivos.</p>
+                        </div>
                     </div>
 
                     <div class="glass-panel p-5 md:col-span-2 border-l-4 border-purple-500">
